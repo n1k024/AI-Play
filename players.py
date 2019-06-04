@@ -6,6 +6,7 @@ import collections
 class Player(ABC):
     def __init__(self, name):
         self.name = name
+        self.action = -1
 
         ## wins[0] loses[1] , ties[2]
         self.record = [0] * 3
@@ -28,7 +29,7 @@ class TabularRLAgent(ABC):
         self.new_state = None
         self.ALPHA = alpha
         self.reward = 0
-        self.GAMMA = .9
+        self.GAMMA = .99
 
     @abstractmethod
     def value_update(self, state, action, new_state,reward):
@@ -76,7 +77,7 @@ class QPlayer(Player, TabularRLAgent):
         _,action_val = self.bestactionandvalue(new_state)
 
 
-        self.values[(state,action)] = prev_val + self.ALPHA*( reward + self.GAMMA*action_val - prev_val)
+        self.values[(state,action)] = prev_val + self.ALPHA*( reward + self.GAMMA * (action_val - prev_val))
 
 
 
@@ -85,5 +86,5 @@ class QPlayer(Player, TabularRLAgent):
         ## compute best action in a given state
         print('QPlayer Executes')
 
-        action,_ = bestactionandvalue(self.state)
+        action,_ = self.bestactionandvalue(self.state)
         return action

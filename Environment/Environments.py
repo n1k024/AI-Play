@@ -1,6 +1,8 @@
 
 from abc import ABC, abstractmethod
 
+import numpy as np
+
 
 
 class Twoplayerenv(ABC):
@@ -37,12 +39,96 @@ class Twoplayerenv(ABC):
         pass
 
     @abstractmethod
-    def isgameover(self):
+    def isgameover(self,player):
         pass
 
     @abstractmethod
     def iswinner(self,player):
         pass
+    def directional_search(self,player,board,bound_x,bound_y,depth):
+
+        ### result is either 1 or 0 indicating success or failure in searching for player's piece
+
+        result = 0
+
+
+        ### This function searches a game board in a direction until it finds the piece if
+        ## immeately if we fail to find the piece we are looking for or hit an edge then we go to our orginal position
+
+
+        directions= [0,1,1,0,1,1]
+
+
+        ## each row is now a direction
+        directions = np.array(directions).reshape(3,2)
+
+
+        for direction in directions:
+
+            Y, X = self.convert_point(a=player.action,bound=bound_x)
+
+            if Y + direction[0] < bound_y and X + direction[1] < bound_x:
+
+                for x in range(depth):
+
+                    Y = Y + direction[0]
+                    X = X + direction[1]
+
+
+                    if x== depth - 1:
+                        result = 1
+                    if not board[Y][X] == player.piece and Y > bound_y and X > bound_x:
+                        break
+                    if x == depth-1:
+                        result = 1
+
+
+    #### Searching in the opposite drection
+            Y, X = self.convert_point(a=player.action,bound=bound_x)
+
+            if Y - direction[0] > -1 and X - direction[1] > -1:
+                Y = Y - direction[0]
+                X = X - direction[1]
+
+                for x in range(depth):
+                    Y = Y - direction[0]
+                    X = X - direction[1]
+
+
+                    if not board[Y][X] == player.piece and Y < 0 and X < 0:
+                        break
+
+                    if x == depth - 1:
+                        result = 1
+
+
+
+    def convert_point(self,a,bound):
+        pos_x = -1
+        pos_y = 0
+
+        for x in range(len(self.state)):
+
+            pos_x = pos_x + 1
+
+
+
+            if  x == a:
+                return pos_y,pos_x
+
+
+
+            if pos_x == bound:
+                pos_x = 0
+                pos_y = pos_y+1
+
+
+
+
+
+
+
+
 
 
     def determine_outcome(self,player1,player2):
@@ -121,12 +207,12 @@ class Twoplayerenv(ABC):
                     if self.isgameover():
                         break
 
-                    if player1.name == 'QPlayer':
-                        player1.set_next_state(self.state)
+                    if player2.name == 'QPlayer':
+                        player2.set_next_state(self.state)
 
-                        player1.value_update(player1.state,player1.new_state)
+                        player2.value_update(player1.state,player1.new_state)
 
-                        player1.state = player1.new_state
+                        player2.state = player2.new_state
 
                     self.illegal_action = True
 
@@ -156,7 +242,7 @@ class Twoplayerenv(ABC):
 
                         player2.value_update(player2.state, player2.new_state)
 
-                        player2.state = player2.new_state
+                        player1.state = player1.new_state
 
 
 
@@ -166,22 +252,20 @@ class Twoplayerenv(ABC):
 
 
 class TicTacToe(Twoplayerenv):
-    def __init__(self,player1,player2,episodes = 1):
+    def __init__(self,player1,player2):
 
         self.player1.piece = "X"
 
         self.player2.piece = "O"
 
 
-        Twoplayerenv.__init__(self, player1=player1,player2 = player2,episodes = episodes)
+
+        Twoplayerenv.__init__(self, player1=player1,player2 = player2)
 
 
     def reset_env(self):
         self.state = ["-"] * 9
 
-        self.player1.state = self.state
-
-        self.player2 = self.state
 
 
     ### Upon reseting the environment the agents representation of state is equal to that of Env
@@ -193,27 +277,38 @@ class TicTacToe(Twoplayerenv):
 
             self.player2.state = self.state
 
+        return self.state
+
     def islegal_action(self,a):
 
-        switch = 0
+        switch = True
 
-        if not a > -1 and not a < 9:
-            switch = 1
+        if  a < 0 and  a > 9 or not self.state[a] == "-":
+            switch = False
 
-        if not self.state[a] == "-":
-            switch = 1
 
             return switch
 
 
-    def isgameover(self):
+    def isgameover(self,player):
         gameover = 0
 
-        for s in self.state:
+
+    ## Inspect the entire state space to see if all the spaces are filled
+
+       ## use directional search here
+
+        board = np.array(self.state).reshape(3,3)
+        self.directional_search(player=player,board=board,bound_x=board.shape[0],bound_y=board.shape[1])
 
 
-            if s =='-':
-                gameover = 0
+        if gameover==1:
+            return gameover
+
+
+
+
+
 
     def update_env(self, action,player):
 
