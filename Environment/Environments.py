@@ -47,9 +47,6 @@ class Twoplayerenv(ABC):
         pass
     def directional_search(self,player,board,bound_x,bound_y,depth):
 
-        ### result is either 1 or 0 indicating success or failure in searching for player's piece
-
-        result = 0
 
 
         ### This function searches a game board in a direction until it finds the piece if
@@ -67,6 +64,8 @@ class Twoplayerenv(ABC):
 
             Y, X = self.convert_point(a=player.action,bound=bound_x)
 
+            count_piece = 0
+
             if Y + direction[0] < bound_y and X + direction[1] < bound_x:
 
                 for x in range(depth):
@@ -79,11 +78,13 @@ class Twoplayerenv(ABC):
                         result = 1
                     if not board[Y][X] == player.piece and Y > bound_y and X > bound_x:
                         break
-                    if x == depth-1:
-                        result = 1
+                    else:
+                        count_piece = count_piece + 1
+                    if count_piece == depth:
+                        return 1
 
 
-    #### Searching in the opposite drection
+            #### Searching in the opposite drection
             Y, X = self.convert_point(a=player.action,bound=bound_x)
 
             if Y - direction[0] > -1 and X - direction[1] > -1:
@@ -97,9 +98,14 @@ class Twoplayerenv(ABC):
 
                     if not board[Y][X] == player.piece and Y < 0 and X < 0:
                         break
+                    else:
+                        count_piece = count_piece + 1
 
-                    if x == depth - 1:
-                        result = 1
+                    if count_piece == depth:
+                        return 1
+
+
+        return 0
 
 
 
@@ -204,7 +210,7 @@ class Twoplayerenv(ABC):
 
                     self.update_env(action,player1)
 
-                    if self.isgameover():
+                    if self.isgameover(player=player1):
                         break
 
                     if player2.name == 'QPlayer':
@@ -232,7 +238,7 @@ class Twoplayerenv(ABC):
                     self.update_env(action,player2)
 
                 ## if the game is over we get out of the loop
-                    if self.isgameover():
+                    if self.isgameover(player=player2):
                         break
 
                         # the enviornment needs to update its own state
@@ -299,7 +305,7 @@ class TicTacToe(Twoplayerenv):
        ## use directional search here
 
         board = np.array(self.state).reshape(3,3)
-        self.directional_search(player=player,board=board,bound_x=board.shape[0],bound_y=board.shape[1])
+        self.directional_search(player=player,board=board,bound_x=board.shape[0],bound_y=board.shape[1],depth=2)
 
 
         if gameover==1:
