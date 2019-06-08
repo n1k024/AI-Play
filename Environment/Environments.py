@@ -33,6 +33,19 @@ class Twoplayerenv(ABC):
     @abstractmethod
     def reset_env(self):
         pass
+    def reset_players_and_agents(self):
+
+
+        if self.player1.name == "QPlayer":
+
+            self.player1.state = self.state
+        if self.player2.state == "QPlayer":
+
+            self.player2.state = self.state
+
+
+            ### console should display an empty respresentation of the environment at time step t for human player
+
 
     @abstractmethod
     def update_env(self,action,player):
@@ -47,7 +60,7 @@ class Twoplayerenv(ABC):
         pass
     def directional_search(self,player,board,bound_x,bound_y,depth):
 
-
+        ## depth parameter is specifies how many times we must get get a match before we can declare success
 
         ### This function searches a game board in a direction until it finds the piece if
         ## immeately if we fail to find the piece we are looking for or hit an edge then we go to our orginal position
@@ -74,9 +87,13 @@ class Twoplayerenv(ABC):
                     X = X + direction[1]
 
 
-                    if x== depth - 1:
-                        result = 1
-                    if not board[Y][X] == player.piece and Y > bound_y and X > bound_x:
+                    #NOTE: TO SELF check if Y and X represent an actual point on the board before checking if the piece
+                    ### If we fall off the edge no reason in continuing to search
+
+                    if Y > bound_y - 1 or X > bound_x - 1:
+                        break
+
+                    if not board[Y][X] == player.piece:
                         break
                     else:
                         count_piece = count_piece + 1
@@ -95,8 +112,10 @@ class Twoplayerenv(ABC):
                     Y = Y - direction[0]
                     X = X - direction[1]
 
+                    if  Y < 0 or X < 0:
+                        break
 
-                    if not board[Y][X] == player.piece and Y < 0 and X < 0:
+                    if not board[Y][X] == player.piece :
                         break
                     else:
                         count_piece = count_piece + 1
@@ -145,11 +164,9 @@ class Twoplayerenv(ABC):
             player2.record[1] += 1
 
             if player1.name == "QPlayer":
-                player1.set_reward(1)
                 player1.value_update(player1.state, player1.new_state,1)
 
                 if player2.name == "QPlayer":
-                    player2.set_reward(-1)
                     player2.value_update(player2.state, player2.new_state,-1)
 
         if self.iswinner(player2):
@@ -161,7 +178,6 @@ class Twoplayerenv(ABC):
                 player2.value_update(player2.state,player2.new_state,1)
 
                 if player1.name == "QPlayer":
-                    player1.set_reward(-1)
                     player1.value_update(player1.state, player1.new_state,-1)
 
 
@@ -179,11 +195,11 @@ class Twoplayerenv(ABC):
             player1.record[2] += 1
 
             if player1.name == "QPlayer":
-                player1.set_reward(0)
                 player1.value_update(player1.state, player1.new_state,0)
 
             if player2.name == "QPlayer":
                 player2.value_update(player2.state, player2.new_state,0)
+
     @abstractmethod
     def islegal_action(self,a):
         pass
@@ -216,7 +232,7 @@ class Twoplayerenv(ABC):
                     if player2.name == 'QPlayer':
                         player2.set_next_state(self.state)
 
-                        player2.value_update(player1.state,player1.new_state)
+                        player2.value_update(player2.state,player2.new_state)
 
                         player2.state = player2.new_state
 
@@ -241,12 +257,12 @@ class Twoplayerenv(ABC):
                     if self.isgameover(player=player2):
                         break
 
-                        # the enviornment needs to update its own state
-                    if player2.name =="QPlayer":
 
-                        player2.set_next_state(self.state)
+                    if player1.name =="QPlayer":
 
-                        player2.value_update(player2.state, player2.new_state)
+                        player1.set_next_state(self.state)
+
+                        player1.value_update(player1.state, player1.new_state)
 
                         player1.state = player1.new_state
 
@@ -265,7 +281,6 @@ class TicTacToe(Twoplayerenv):
         self.player2.piece = "O"
 
 
-
         Twoplayerenv.__init__(self, player1=player1,player2 = player2)
 
 
@@ -276,12 +291,8 @@ class TicTacToe(Twoplayerenv):
 
     ### Upon reseting the environment the agents representation of state is equal to that of Env
 
-        if self.player1.name == "QPlayer":
+        self.reset_players_and_agents()
 
-            self.player1.state = self.state
-        if self.player2.state == "QPlayer":
-
-            self.player2.state = self.state
 
         return self.state
 
@@ -302,14 +313,28 @@ class TicTacToe(Twoplayerenv):
 
     ## Inspect the entire state space to see if all the spaces are filled
 
-       ## use directional search here
+
+
+
+        ### Determine if a tie took place
+        tie = 1
+
+        for x in range(len(self.state)):
+
+            if self.state[x] =='-':
+                tie = 0
+
+        ## use directional search here
 
         board = np.array(self.state).reshape(3,3)
-        self.directional_search(player=player,board=board,bound_x=board.shape[0],bound_y=board.shape[1],depth=2)
 
 
-        if gameover==1:
-            return gameover
+        ## determine if game terminates due to a winner
+        winner = self.directional_search(player=player,board=board,bound_x=board.shape[0],bound_y=board.shape[1],depth=2)
+
+
+
+        return winner, tie
 
 
 
