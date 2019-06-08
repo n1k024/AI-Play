@@ -310,6 +310,19 @@ class TicTacToe(Twoplayerenv):
     def isgameover(self,player):
         gameover = 0
 
+        ## use directional search here
+
+        board = np.array(self.state).reshape(3, 3)
+
+        ## determine if game terminates due to a winner
+        winner = self.directional_search(player=player, board=board, bound_x=board.shape[0], bound_y=board.shape[1],
+                                         depth=2)
+
+        ## Terminate this function  if we determine the inputted is the winner as a result of their last action
+
+        if winner:
+            return winner
+
 
     ## Inspect the entire state space to see if all the spaces are filled
 
@@ -324,17 +337,10 @@ class TicTacToe(Twoplayerenv):
             if self.state[x] =='-':
                 tie = 0
 
-        ## use directional search here
-
-        board = np.array(self.state).reshape(3,3)
-
-
-        ## determine if game terminates due to a winner
-        winner = self.directional_search(player=player,board=board,bound_x=board.shape[0],bound_y=board.shape[1],depth=2)
 
 
 
-        return winner, tie
+        return winner or tie
 
 
 
@@ -345,6 +351,15 @@ class TicTacToe(Twoplayerenv):
 
         ## Player applies an action using their game onto the environment
         self.state[action] = player.piece
+
+    def iswinner(self,player):
+
+        ## search in repsect of the direction if in fact that player is a winner
+
+        board = np.array(self.state)
+
+        board.reshape(3,3)
+        return self.directional_search(board=board,player=player,bound_x=board.shape[0],bound_y=board.shape[1],depth=2)
 
 
 
