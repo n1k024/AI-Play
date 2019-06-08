@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 
 import collections
 
+import random
 
 class Player(ABC):
     def __init__(self, name):
@@ -18,9 +19,6 @@ class Player(ABC):
     def executeaction(self):
         pass
 
-    ## To compare humans and robots
-    def set_score(self,reward):
-        self.score += reward
 
 class TabularRLAgent(ABC):
     def __init__(self,alpha = .1):
@@ -51,6 +49,8 @@ class HumanPlayer(Player):
 
         action = input("Select an action to execute ")
 
+        self.action = action
+
         return action
 
 
@@ -63,12 +63,28 @@ class QPlayer(Player, TabularRLAgent):
         TabularRLAgent.__init__(self,alpha = alpha)
 
     def bestactionandvalue(self,state):
-        best_value = 0.0
-        best_action = None
+        switch = 1
+        best_value, best_action = None, None
+        for action in range(20):
 
-        ### add code to compute the best action in a given state
+            action_value = self.values[(state, action)]
 
-        return best_action,best_value
+            if best_value is None or best_value < action_value:
+                best_value = action_value
+                best_action = action
+            if best_value != action_value:
+                switch = 0
+
+        if best_value == 0:
+            switch = 1
+
+        if switch:
+            best_action = random.uniform(0,20)
+
+
+        return best_value, best_action
+
+
 
     def value_update(self, state, action, new_state,reward = 0):
 
@@ -86,5 +102,8 @@ class QPlayer(Player, TabularRLAgent):
         ## compute best action in a given state
         print('QPlayer Executes')
 
-        action,_ = self.bestactionandvalue(self.state)
+        _,action = self.bestactionandvalue(self.state)
+
+        self.action = action
+
         return action
