@@ -58,6 +58,9 @@ class Twoplayerenv(ABC):
     @abstractmethod
     def iswinner(self,player):
         pass
+    @abstractmethod
+    def display_state(self,state):
+        pass
     def directional_search(self,player,board,bound_x,bound_y,depth):
 
         ## depth parameter is specifies how many times we must get get a match before we can declare success
@@ -235,6 +238,9 @@ class Twoplayerenv(ABC):
                         player2.value_update(player2.state,player2.new_state)
 
                         player2.state = player2.new_state
+                    else:
+                        ## Display the current state of the environment for  our human player
+                        self.display_state(self.state)
 
                     self.illegal_action = True
 
@@ -265,6 +271,10 @@ class Twoplayerenv(ABC):
                         player1.value_update(player1.state, player1.new_state)
 
                         player1.state = player1.new_state
+                    else:
+                        ## Display the current state of the environment for  our human player
+                        self.display_state(self.state)
+
 
 
 
@@ -308,7 +318,6 @@ class TicTacToe(Twoplayerenv):
 
 
     def isgameover(self,player):
-        gameover = 0
 
         ## use directional search here
 
@@ -327,8 +336,6 @@ class TicTacToe(Twoplayerenv):
     ## Inspect the entire state space to see if all the spaces are filled
 
 
-
-
         ### Determine if a tie took place
         tie = 1
 
@@ -337,12 +344,17 @@ class TicTacToe(Twoplayerenv):
             if self.state[x] =='-':
                 tie = 0
 
+        return tie or winner
 
 
+## if we arrive here then one of these
 
-        return winner or tie
 
+    def display_state(self,state):
 
+        board = np.array(state).reshape(3,3)
+
+        print(board)
 
 
 
@@ -358,7 +370,7 @@ class TicTacToe(Twoplayerenv):
 
         board = np.array(self.state)
 
-        board.reshape(3,3)
+        board = board.reshape(3,3)
         return self.directional_search(board=board,player=player,bound_x=board.shape[0],bound_y=board.shape[1],depth=2)
 
 
