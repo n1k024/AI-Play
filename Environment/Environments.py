@@ -93,10 +93,7 @@ class Twoplayerenv(ABC):
 
             Y, X = self.convert_point(a=int(player.action),bound=bound_x)
 
-            print("Action point is ",Y,X)
 
-            #print(directions[z][1])
-            #print(directions[z])
 
 
             count_piece = 0
@@ -173,7 +170,6 @@ class Twoplayerenv(ABC):
 
 
             if pos_x == bound-1:
-                print("next row !!!!")
                 pos_x = -1
                 pos_y = pos_y+1
 
@@ -344,7 +340,6 @@ class TicTacToe(Twoplayerenv):
 
         a = int(a)
 
-        print("Action = ",a)
 
         if  a < 0 or  a > 8:
             return False
@@ -374,7 +369,6 @@ class TicTacToe(Twoplayerenv):
 
 
     ## Inspect the entire state space to see if all the spaces are filled
-
 
         ### Determine if a tie took place
         tie = 1
