@@ -174,7 +174,7 @@ class Twoplayerenv(ABC):
 
             if pos_x == bound-1:
                 print("next row !!!!")
-                pos_x = 0
+                pos_x = -1
                 pos_y = pos_y+1
 
 
@@ -217,11 +217,7 @@ class Twoplayerenv(ABC):
                 if player1.name == "QPlayer":
                     player1.value_update(player1.state, player1.new_state,-1)
 
-
-
-
-
-            elif not self.iswinner(player1) and not self.iswinner(player2):
+            else:
 
                 print("TIE !!!")
 
