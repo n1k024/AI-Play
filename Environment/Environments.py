@@ -204,7 +204,7 @@ class Twoplayerenv(ABC):
                 if player2.name == "QPlayer":
                     player2.value_update(player2.state, player2.new_state,-1)
 
-            elif self.iswinner(player2):
+        elif self.iswinner(player2):
 
                 player2.record[0] += 1
                 player1.record[1] += 1
@@ -217,7 +217,7 @@ class Twoplayerenv(ABC):
                 if player1.name == "QPlayer":
                     player1.value_update(player1.state, player1.new_state,-1)
 
-            else:
+        else:
 
                 print("TIE !!!")
 
