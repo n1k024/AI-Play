@@ -7,7 +7,7 @@ import random
 class Player(ABC):
     def __init__(self, name):
         self.name = name
-        self.action = -1
+        self.action = int(-1)
 
         ## wins[0] loses[1] , ties[2]
         self.record = [0] * 3
@@ -23,8 +23,8 @@ class Player(ABC):
 class TabularRLAgent(ABC):
     def __init__(self,alpha = .1):
         self.values = collections.defaultdict(float)
-        self.state = None
-        self.new_state = None
+        self.state = ""
+        self.new_state = ""
         self.ALPHA = alpha
         self.reward = 0
         self.GAMMA = .99
@@ -33,21 +33,35 @@ class TabularRLAgent(ABC):
     def value_update(self, state, action, new_state,reward):
         pass
     def set_next_state(self,next_state):
-        self.new_state = next_state
+
+        self.new_state = self.stringify(next_state)
+
+
+
 
     def set_reward(self,reward):
         self.reward = reward
+    def set_state(self,state):
+      self.state =   self.stringify(state)
+
+    def stringify(self,state):
+        string_state = ""
+
+        for x in range(len(state)):
+            string_state = string_state + ','+ state[x]
+
+        return string_state
 
 class HumanPlayer(Player):
     def __init__(self):
 
-        name = input("Please Enter your name")
+        name = input("Please Enter your name ")
         Player.__init__(self,name = name)
 
 
     def executeaction(self):
 
-        action = input("Select an action to execute ")
+        action = int(input("Select an action to execute "))
 
         self.action = action
 
@@ -65,7 +79,10 @@ class QPlayer(Player, TabularRLAgent):
     def bestactionandvalue(self,state):
         switch = 1
         best_value, best_action = None, None
-        for action in range(20):
+
+        #state = self.stringify(state)
+
+        for action in range(10):
 
             action_value = self.values[(state, action)]
 
@@ -79,7 +96,7 @@ class QPlayer(Player, TabularRLAgent):
             switch = 1
 
         if switch:
-            best_action = random.uniform(0,20)
+            best_action = random.uniform(0,10)
 
 
         return best_value, best_action
@@ -88,7 +105,13 @@ class QPlayer(Player, TabularRLAgent):
 
     def value_update(self, state, action, new_state,reward = 0):
 
+
+
         prev_val = self.values[(state,action)]
+
+
+
+
 
         _,action_val = self.bestactionandvalue(new_state)
 
