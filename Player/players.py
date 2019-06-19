@@ -61,9 +61,21 @@ class HumanPlayer(Player):
 
     def executeaction(self):
 
-        action = int(input("Select an action to execute "))
+        action = input("Select an action to execute ")
 
-        self.action = action
+        if str.isdigit(action):
+
+            action = int(action)
+            self.action = action
+        else:
+            self.executeaction()
+
+
+
+
+
+
+        print(action)
 
         return action
 
