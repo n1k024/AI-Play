@@ -33,9 +33,11 @@ class Twoplayerenv(ABC):
             ## Let's a play game !!!
             self.playepisode(self.player1,self.player2)
 
-        print("Player1's Record",player1.record)
 
-        print("Player2's record",player2.record)
+
+        print("Player1's Record ",player1.record[0],"-",player1.record[1],"-",player1.record[2])
+
+        print("Player2's record ",player2.record[0],"-",player2.record[1],"-",player2.record[2])
 
 
     @abstractmethod
@@ -72,6 +74,8 @@ class Twoplayerenv(ABC):
     @abstractmethod
     def display_state(self,state):
         pass
+
+
     def directional_search(self,player,board,bound_x,bound_y,depth):
 
         ## depth parameter is specifies how many times we must get get a match before we can declare success
@@ -83,10 +87,19 @@ class Twoplayerenv(ABC):
         directions= [0,1,1,0,1,1]
 
 
+
+        ##### TEST for functionality in diagonal
+
+        #directions = [1,1]
+
+
         ## each row is now a direction
         directions = np.array(directions).reshape(3,2)
 
         np.random.shuffle(directions)
+
+        #print(directions)
+
 
 
         for z in range(len(directions)):
@@ -95,10 +108,9 @@ class Twoplayerenv(ABC):
 
 
 
-
             count_piece = 0
             
-            if Y + directions[z][0] < bound_y and X + directions[z][1] < bound_x:
+            if Y + directions[z][0] < bound_y   and X + directions[z][1] < bound_x:
 
                 for x in range(depth):
 
@@ -120,19 +132,21 @@ class Twoplayerenv(ABC):
                     if count_piece == depth:
                         return 1
 
-
+            print("Number of pieces",count_piece)
 
             #### Searching in the opposite drection
             Y, X = self.convert_point(a=int(player.action),bound=bound_x)
+
 
             if Y - directions[z][0] > -1 and X - directions[z][1] > -1:
 
 
                 for x in range(depth):
                     Y = Y - directions[z][0]
-                    X = X - directions[z][1]  
+                    X = X - directions[z][1]
 
-                    if  Y < 0 or X < 0:
+
+                    if  Y < -1 or X < -1:
                         break
 
                     if not board[Y][X] == player.piece:
@@ -140,9 +154,10 @@ class Twoplayerenv(ABC):
                     else:
                         count_piece = count_piece + 1
 
-
                     if count_piece == depth:
                         return 1
+
+
 
 
 
@@ -154,12 +169,10 @@ class Twoplayerenv(ABC):
         pos_x = -1
         pos_y = 0
 
-        if a == 0:
-            return 0,0
+
 
 
         for x in range(len(self.state)):
-
 
             pos_x = pos_x + 1
 
@@ -169,16 +182,9 @@ class Twoplayerenv(ABC):
 
 
 
-            if pos_x == bound-1:
+            if pos_x == bound -1:
                 pos_x = -1
-                pos_y = pos_y+1
-
-
-
-
-
-
-
+                pos_y = pos_y + 1
 
 
 
@@ -248,6 +254,10 @@ class Twoplayerenv(ABC):
 
                     self.update_env(action=player1.action,player=player1)
 
+                    if self.isgameover(player=player1):
+                        break
+
+
                     if player2.name == 'QPlayer':
                         player2.set_state(player2.state)
 
@@ -256,15 +266,8 @@ class Twoplayerenv(ABC):
                         player2.value_update(state=player2.state, new_state=player2.new_state, action=player2.action)
 
                         player2.set_state(player2.new_state)
-
-                    if self.isgameover(player=player1):
-                        break
-
-
                     else:
-                        ## Display the current state of the environment for  our human player
                         self.display_state(self.state)
-
 
 
 
@@ -303,7 +306,7 @@ class Twoplayerenv(ABC):
 
 
 class TicTacToe(Twoplayerenv):
-    def __init__(self,player1,player2):
+    def __init__(self,player1,player2,episodes = 1):
 
         self.player1 = player1
 
@@ -315,7 +318,7 @@ class TicTacToe(Twoplayerenv):
 
 
 
-        Twoplayerenv.__init__(self, player1=player1,player2 = player2)
+        Twoplayerenv.__init__(self, player1=player1,player2 = player2,episodes=episodes)
 
 
 
@@ -358,7 +361,7 @@ class TicTacToe(Twoplayerenv):
         board = np.array(self.state).reshape(3, 3)
 
         ## determine if game terminates due to a winner
-        winner = self.directional_search(player=player, board=board, bound_x=board.shape[0], bound_y=board.shape[1],
+        winner = self.directional_search(player=player, board=board, bound_x=board.shape[1], bound_y=board.shape[0],
                                          depth=2)
 
         ## Terminate this function  if we determine the inputted is the winner as a result of their last action
@@ -409,7 +412,6 @@ class TicTacToe(Twoplayerenv):
 
         board = board.reshape(3,3)
 
-        print("Winner ?????",self.directional_search(board=board,player=player,bound_x=board.shape[1],bound_y=board.shape[0],depth=2))
 
         return self.directional_search(board=board,player=player,bound_x=board.shape[1],bound_y=board.shape[0],depth=2)
 
