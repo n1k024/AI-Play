@@ -28,10 +28,22 @@ class Twoplayerenv(ABC):
 
             #### print state
 
-            print(self.state)
-
+            self.display_state(self.state)
             ## Let's a play game !!!
             self.playepisode(self.player1,self.player2)
+
+
+            y, x = self.convert_point(a=int(self.player1.action), bound_x=3)
+
+            self.state[y][x] = ''
+
+            y, x = self.convert_point(a=int(self.player2.action), bound_x=3)
+
+            self.state[y][x] = ''
+
+
+
+            self.display_state(self.state)
 
 
 
@@ -90,7 +102,6 @@ class Twoplayerenv(ABC):
 
         ##### TEST for functionality in diagonal
 
-        #directions = [1,1]
 
 
         ## each row is now a direction
@@ -98,19 +109,19 @@ class Twoplayerenv(ABC):
 
         np.random.shuffle(directions)
 
-        #print(directions)
+
 
 
 
         for z in range(len(directions)):
 
-            Y, X = self.convert_point(a=int(player.action),bound=bound_x)
+            Y, X = self.convert_point(a=int(player.action),bound_x=bound_x,bound_y=bound_y)
 
 
 
             count_piece = 0
             
-            if Y + directions[z][0] < bound_y   and X + directions[z][1] < bound_x:
+            if Y + directions[z][0] < bound_y and X + directions[z][1] < bound_x:
 
                 for x in range(depth):
 
@@ -132,10 +143,10 @@ class Twoplayerenv(ABC):
                     if count_piece == depth:
                         return 1
 
-            print("Number of pieces",count_piece)
+
 
             #### Searching in the opposite drection
-            Y, X = self.convert_point(a=int(player.action),bound=bound_x)
+            Y, X = self.convert_point(a=int(player.action),bound_x=bound_x,bound_y=bound_y)
 
 
             if Y - directions[z][0] > -1 and X - directions[z][1] > -1:
@@ -164,27 +175,9 @@ class Twoplayerenv(ABC):
         return 0
 
 
-
-    def convert_point(self,a,bound):
-        pos_x = -1
-        pos_y = 0
-
-
-
-
-        for x in range(len(self.state)):
-
-            pos_x = pos_x + 1
-
-            if x == a:
-                return pos_y, pos_x
-
-
-
-
-            if pos_x == bound -1:
-                pos_x = -1
-                pos_y = pos_y + 1
+    @abstractmethod
+    def convert_point(self,a,bound_x,bound_y=None):
+       pass
 
 
 
@@ -192,6 +185,8 @@ class Twoplayerenv(ABC):
 
 
     def determine_outcome(self,player1,player2):
+
+
 
         if self.iswinner(player1):
 
@@ -201,10 +196,19 @@ class Twoplayerenv(ABC):
             player2.record[1] += 1
 
             if player1.name == "QPlayer":
-                player1.value_update(player1.state, player1.new_state,1)
+
+                player1.set_state(player1.state)
+
+                player1.set_next_state(self.state)
+
+                player1.value_update(player1.state, player1.new_state,action=int(player1.action),reward=1)
+
 
                 if player2.name == "QPlayer":
-                    player2.value_update(player2.state, player2.new_state,-1)
+                    player2.set_state(player2.state)
+                    player2.set_next_state(self.state)
+
+                    player2.value_update(state=player2.state, new_state=player2.new_state,action=player2.action,reward=-1)
 
         elif self.iswinner(player2):
 
@@ -214,10 +218,18 @@ class Twoplayerenv(ABC):
                 print("Winner is", player2.name)
 
                 if player2.name == "QPlayer":
-                    player2.value_update(player2.state,player2.new_state,1)
+
+                    player2.set_state(player2.state)
+                    player2.set_next_state(self.state)
+
+                    player2.value_update(state=player2.state,new_state=player2.new_state,action=int(player2.action),reward=1)
 
                 if player1.name == "QPlayer":
-                    player1.value_update(player1.state, player1.new_state,-1)
+                    player1.set_state(player1.state)
+
+                    player1.set_next_state(self.state)
+
+                    player1.value_update(state=player1.state, new_state=player1.new_state,reward = -1,action=int(player1.action))
 
         else:
 
@@ -227,10 +239,18 @@ class Twoplayerenv(ABC):
                 player1.record[2] += 1
 
                 if player1.name == "QPlayer":
-                    player1.value_update(player1.state, player1.new_state,0)
+                    player1.set_state(player1.state)
+
+                    player1.set_next_state(self.state)
+
+                    player1.value_update(player1.state, player1.new_state,reward=0,action=int(player1.action))
 
                 if player2.name == "QPlayer":
-                    player2.value_update(player2.state, player2.new_state,0)
+                    player2.set_state(player2.state)
+
+                    player2.set_next_state(self.state)
+
+                    player2.value_update(state=player2.state, new_state=player2.new_state,reward=0,action=int(player2.action))
 
     @abstractmethod
     def islegal_action(self,a):
@@ -325,7 +345,17 @@ class TicTacToe(Twoplayerenv):
 
 
     def reset_env(self):
-        self.state = ["-"] * 9
+
+
+
+        self.state = np.zeros((3,3),dtype=str)
+
+        for y in range(len(self.state)):
+            for x in range(len(self.state)):
+                self.state[y][x] = ""
+
+
+
 
 
 
@@ -338,6 +368,7 @@ class TicTacToe(Twoplayerenv):
 
     def islegal_action(self,a):
 
+
         switch = True
 
 
@@ -347,11 +378,30 @@ class TicTacToe(Twoplayerenv):
         if  a < 0 or  a > 8:
             return False
 
-        if not self.state[a]== "-":
+        y, x = self.convert_point(bound_x=3, a=int(a))
+
+        if not self.state[y][x]== "":
             return  False
 
 
         return switch
+
+
+    def convert_point(self,a,bound_x,bound_y=None):
+
+        pos_x = -1
+        pos_y = 0
+
+        for x in range(9):
+
+            pos_x = pos_x + 1
+
+            if x == a:
+                return pos_y, pos_x
+
+            if pos_x == bound_x - 1:
+                pos_x = -1
+                pos_y = pos_y + 1
 
 
     def isgameover(self,player):
@@ -376,10 +426,11 @@ class TicTacToe(Twoplayerenv):
         ### Determine if a tie took place
         tie = 1
 
-        for x in range(len(self.state)):
+        for y in range(len(self.state)):
+            for x in range(len(self.state[y])):
 
-            if self.state[x] =='-':
-                tie = 0
+                if self.state[y][x] =='':
+                    tie = 0
 
         return tie or winner
 
@@ -389,9 +440,11 @@ class TicTacToe(Twoplayerenv):
 
     def display_state(self,state):
 
-        board = np.array(state).reshape(3,3)
+        #board = np.array(state).reshape(3,3)
 
-        print(board)
+        print(state)
+
+        print("State DIM",state.shape)
 
 
 
@@ -402,7 +455,9 @@ class TicTacToe(Twoplayerenv):
 
         action = int(action)
 
-        self.state[action] = player.piece
+        y,x=self.convert_point(a=action,bound_x=3)
+
+        self.state[y][x] = player.piece
 
     def iswinner(self,player):
 
@@ -414,6 +469,59 @@ class TicTacToe(Twoplayerenv):
 
 
         return self.directional_search(board=board,player=player,bound_x=board.shape[1],bound_y=board.shape[0],depth=2)
+
+
+class Connect4(Twoplayerenv):
+    def __init__(self,player1,player2,episodes=1):
+
+       player1.piece = "R"
+
+       player2.piece = "O"
+
+       Twoplayerenv.__init__(self,player1=player1, player2=player2, episodes=episodes)
+
+    def reset_env(self):
+        self.state = np.zeros((6,7),dtype= str)
+
+
+    def islegal_action(self,a):
+
+        if a < 0 and a > 6:
+            return False
+        if not self.state[:,a] == "":
+            return False
+
+        return True
+
+    def display_state(self,state):
+        print(self.state)
+
+    def iswinner(self,player):
+
+         return self.directional_search(player=player,board=self.state,
+                                        bound_x=self.state.shape[1],bound_y=self.state.shape[0],depth=3)
+    def isgameover(self,player):
+
+        winner = self.directional_search(player=player,board=self.state,
+                                        bound_x=self.state.shape[1],bound_y=self.state.shape[0],depth=3)
+
+        if not winner:
+
+            tie = True
+
+            for y in range(len(self.state)):
+                for x in range(len(self.state[y])):
+
+                    if  self.state[y][x] =="":
+                        tie = False
+
+
+        return winner or tie
+
+
+
+
+
 
 
 
