@@ -47,8 +47,9 @@ class TabularRLAgent(ABC):
     def stringify(self,state):
         string_state = ""
 
-        for x in range(len(state)):
-            string_state = string_state + ','+ state[x]
+        for y in range(len(state)):
+            for x in range(len(state[y])):
+                string_state = string_state + ','+ state[y][x]
 
         return string_state
 
