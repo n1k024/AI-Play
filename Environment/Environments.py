@@ -12,6 +12,8 @@ class Twoplayerenv(ABC):
 
         self.player2 = player2
 
+        self.legal_action = False
+
 
 
 
@@ -32,14 +34,6 @@ class Twoplayerenv(ABC):
             ## Let's a play game !!!
             self.playepisode(self.player1,self.player2)
 
-
-            y, x = self.convert_point(a=int(self.player1.action), bound_x=3)
-
-            self.state[y][x] = ''
-
-            y, x = self.convert_point(a=int(self.player2.action), bound_x=3)
-
-            self.state[y][x] = ''
 
 
 
@@ -266,10 +260,14 @@ class Twoplayerenv(ABC):
 
 
 
-                    while not self.islegal_action(player1.action):
+                    while not self.legal_action:
 
 
-                         player1.executeaction()
+                        a = player1.executeaction()
+
+                        self.legal_action =  self.islegal_action(a)
+
+
 
 
                     self.update_env(action=player1.action,player=player1)
@@ -291,11 +289,15 @@ class Twoplayerenv(ABC):
 
 
 
+                    self.legal_action = False
 
-                    while not self.islegal_action(player2.action):
+                    while not self.legal_action:
 
 
-                             player2.executeaction()
+                            a = player2.executeaction()
+                            self.legal_action = self.islegal_action(a)
+
+
 
 
                     ## update our environment after executing actions onto it
@@ -355,10 +357,6 @@ class TicTacToe(Twoplayerenv):
                 self.state[y][x] = ""
 
 
-
-
-
-
     ### Upon reseting the environment the agents representation of state is equal to that of Env
 
         self.reset_players_and_agents()
@@ -367,10 +365,6 @@ class TicTacToe(Twoplayerenv):
         return self.state
 
     def islegal_action(self,a):
-
-
-        switch = True
-
 
         a = int(a)
 
@@ -384,7 +378,7 @@ class TicTacToe(Twoplayerenv):
             return  False
 
 
-        return switch
+        return True
 
 
     def convert_point(self,a,bound_x,bound_y=None):
@@ -444,10 +438,6 @@ class TicTacToe(Twoplayerenv):
 
         print(state)
 
-        print("State DIM",state.shape)
-
-
-
 
     def update_env(self, action,player):
 
@@ -470,6 +460,9 @@ class TicTacToe(Twoplayerenv):
 
         return self.directional_search(board=board,player=player,bound_x=board.shape[1],bound_y=board.shape[0],depth=2)
 
+
+
+############## Connect4 ENVIRONMENT !!!
 
 class Connect4(Twoplayerenv):
     def __init__(self,player1,player2,episodes=1):
@@ -507,7 +500,7 @@ class Connect4(Twoplayerenv):
 
         if not winner:
 
-            tie = True
+
 
             for y in range(len(self.state)):
                 for x in range(len(self.state[y])):
@@ -516,7 +509,7 @@ class Connect4(Twoplayerenv):
                         tie = False
 
 
-        return winner or tie
+        return winner
 
 
 
