@@ -142,13 +142,14 @@ class DoubleQPLayer(TabularRLAgent, Player):
         if random.uniform(0,1) > .5:
             action =  self.best_action(self.values,new_state)
 
-            self.values[(state,action)] = self.values[(state,action)] + self.ALPHA*(reward + self.GAMMA *self.v2[(state,action)]  - self.values[(state,action)])
+            self.values[(state,action)] = self.values[(state,action)] + self.ALPHA   \
+                                          *(reward + self.GAMMA *self.v2[(state,action)]  - self.values[(state,action)])
         else:
 
             action = self.best_action(self.v2,new_state)
 
-
-            self.v2[(state, action)] = self.v2[(state, action)] + self.ALPHA * (reward + self.GAMMA * self.values[(state, action)] - self.v2[(state, action)])
+            self.v2[(state, action)] = self.v2[(state, action)] + self.ALPHA \
+                                       * (reward + self.GAMMA * self.values[(state, action)] - self.v2[(state, action)]   )
 
 
 
@@ -164,6 +165,18 @@ class DoubleQPLayer(TabularRLAgent, Player):
                  best_action = action
          return best_action
 
+
+    def executeaction(self):
+
+    #### Here half the time we will execute actions using one looks up table and the rest of the time we will use the other table for our table to make its choice of action
+        action = None
+        if random.uniform(0,1) > .5:
+            self.action = self.best_action(self.values,self.state)
+        else:
+            self.action = self.best_action(self.v2,self.state)
+
+
+        return self.action
 
 
 
