@@ -4,6 +4,7 @@ import collections
 
 import random
 
+
 class Player(ABC):
     def __init__(self, name):
         self.name = name
@@ -21,44 +22,43 @@ class Player(ABC):
 
 
 class TabularRLAgent(ABC):
-    def __init__(self,alpha = .1):
+    def __init__(self, alpha=.1,gamma = .9):
         self.values = collections.defaultdict(float)
         self.state = ""
         self.new_state = ""
         self.ALPHA = alpha
         self.reward = 0
-        self.GAMMA = .99
+        self.GAMMA = gamma
 
     @abstractmethod
-    def value_update(self, state, action, new_state,reward):
+    def value_update(self, state, action, new_state, reward):
         pass
-    def set_next_state(self,next_state):
+
+    def set_next_state(self, next_state):
 
         self.new_state = self.stringify(next_state)
 
-
-
-
-    def set_reward(self,reward):
+    def set_reward(self, reward):
         self.reward = reward
-    def set_state(self,state):
-      self.state =   self.stringify(state)
 
-    def stringify(self,state):
+    def set_state(self, state):
+        self.state = self.stringify(state)
+
+    def stringify(self, state):
         string_state = ""
 
         for y in range(len(state)):
             for x in range(len(state[y])):
-                string_state = string_state + ','+ state[y][x]
+                string_state = string_state + ',' + state[y][x]
 
         return string_state
+
 
 class HumanPlayer(Player):
     def __init__(self):
 
         name = input("Please Enter your name ")
-        Player.__init__(self,name = name)
-
+        Player.__init__(self, name=name)
 
     def executeaction(self):
 
@@ -71,29 +71,23 @@ class HumanPlayer(Player):
         else:
             self.executeaction()
 
-
-
-
-
-
         print(action)
 
         return action
 
 
-
 class QPlayer(Player, TabularRLAgent):
-    def __init__(self,alpha=.01,name = "QPlayer"):
+    def __init__(self, alpha=.01, name="QPlayer",gamma = .9):
 
-        Player.__init__(self,name = name)
+        Player.__init__(self, name=name)
 
-        TabularRLAgent.__init__(self,alpha = alpha)
+        TabularRLAgent.__init__(self, alpha=alpha,gamma = gamma)
 
-    def bestactionandvalue(self,state):
+    def bestactionandvalue(self, state):
         switch = 1
         best_value, best_action = None, None
 
-        #state = self.stringify(state)
+        # state = self.stringify(state)
 
         for action in range(10):
 
@@ -109,37 +103,68 @@ class QPlayer(Player, TabularRLAgent):
             switch = 1
 
         if switch:
-            best_action = random.uniform(0,10)
-
+            best_action = random.uniform(0, 10)
 
         return best_value, best_action
 
+    def value_update(self, state, action, new_state, reward=0):
 
+        prev_val = self.values[(state, action)]
 
-    def value_update(self, state, action, new_state,reward = 0):
+        _, action_val = self.bestactionandvalue(new_state)
 
-
-
-        prev_val = self.values[(state,action)]
-
-
-
-
-
-        _,action_val = self.bestactionandvalue(new_state)
-
-
-        self.values[(state,action)] = prev_val + self.ALPHA*( reward + self.GAMMA * (action_val - prev_val))
-
-
-
+        self.values[(state, action)] = prev_val + self.ALPHA * (reward + self.GAMMA * (action_val - prev_val))
 
     def executeaction(self):
         ## compute best action in a given state
         print('QPlayer Executes')
 
-        _,action = self.bestactionandvalue(self.state)
+        _, action = self.bestactionandvalue(self.state)
 
         self.action = action
 
         return action
+
+
+### This RL agent uses a technique known as Double Learning ,it can be applied to almost any TD method such as SARSA and Q-Learning
+## This Agent will use double learning to avoid maximization bias obtained from the max operation in Q-Learning
+class DoubleQPLayer(TabularRLAgent, Player):
+    def __init__(self, alpha=.1, name="DbQPlayer",gamma=.9):
+        self.v2 = collections.defaultdict(float)
+        Player.__init__( self,name=name)
+
+        TabularRLAgent.__init__(self,alpha=alpha,gamma = gamma)
+
+    def value_update(self,state,action,new_state,reward=0):
+
+    ### Updating of Q-values occurs here notice we are using two lookup table here, we basically flip a coin to determine which table we will update
+
+        if random.uniform(0,1) > .5:
+            action =  self.best_action(self.values,new_state)
+
+            self.values[(state,action)] = self.values[(state,action)] + self.ALPHA*(reward + self.GAMMA *self.v2[(state,action)]  - self.values[(state,action)])
+        else:
+
+            action = self.best_action(self.v2,new_state)
+
+
+            self.v2[(state, action)] = self.v2[(state, action)] + self.ALPHA * (reward + self.GAMMA * self.values[(state, action)] - self.v2[(state, action)])
+
+
+
+
+     def best_action(self,values,state):
+         best_value = -1
+         best_action = 0
+         for action in range(10):
+             if values[(state, action)] > best_value:
+
+                 best_value = values[(state, action)]
+
+                 best_action = action
+         return best_action
+
+
+
+
+
