@@ -258,7 +258,7 @@ class Twoplayerenv(ABC):
 
              while True:
 
-
+                    self.legal_action = False
 
                     while not self.legal_action:
 
