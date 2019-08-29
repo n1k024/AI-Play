@@ -170,7 +170,7 @@ class Twoplayerenv(ABC):
 
 
     @abstractmethod
-    def convert_point(self,a,bound_x,bound_y=None):
+    def convert_point(self,a,bound_x,bound_y):
        pass
 
 
@@ -518,6 +518,11 @@ class Connect4(Twoplayerenv):
 
 
         return winner or tie
+
+    def convert_point(self,a,bound_x,bound_y):
+        y_coor = self.fall(a)
+
+        return y_coor,a
 
     def update_env(self,action,player):
 
