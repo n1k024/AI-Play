@@ -137,24 +137,28 @@ class DoubleQPLayer(TabularRLAgent, Player):
 
     def value_update(self,state,action,new_state,reward=0):
 
+        Z = random.uniform(0,1)
+
     ### Updating of Q-values occurs here notice we are using two lookup table here, we basically flip a coin to determine which table we will update
 
-        if random.uniform(0,1) > .5:
+        if Z > .5:
             action =  self.best_action(self.values,new_state)
 
             self.values[(state,action)] = self.values[(state,action)] + self.ALPHA   \
                                           *(reward + self.GAMMA *self.v2[(state,action)]  - self.values[(state,action)])
-        else:
+        elif Z < .5:
 
             action = self.best_action(self.v2,new_state)
 
             self.v2[(state, action)] = self.v2[(state, action)] + self.ALPHA \
-                                       * (reward + self.GAMMA * self.values[(state, action)] - self.v2[(state, action)]   )
+                                       * (reward + self.GAMMA * self.values[(state, action)] - self.v2[(state, action)])
+        else:
+            self.value_update(state,action,new_state,reward)
 
 
 
 
-     def best_action(self,values,state):
+    def best_action(self,values,state):
          best_value = -1
          best_action = 0
          for action in range(10):
@@ -169,12 +173,15 @@ class DoubleQPLayer(TabularRLAgent, Player):
     def executeaction(self):
 
     #### Here half the time we will execute actions using one looks up table and the rest of the time we will use the other table for our table to make its choice of action
-        action = None
-        if random.uniform(0,1) > .5:
-            self.action = self.best_action(self.values,self.state)
-        else:
-            self.action = self.best_action(self.v2,self.state)
 
+        Z = random.uniform(0,1)
+        if Z > .5:
+            self.action = self.best_action(self.values,self.state)
+        elif Z < .5:
+            self.action = self.best_action(self.v2,self.state)
+        else:
+            ## If there are ties at which it is .5 we call the executeaction again
+            self.executeaction()
 
         return self.action
 
