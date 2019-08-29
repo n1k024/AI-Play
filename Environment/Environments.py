@@ -410,11 +410,6 @@ class TicTacToe(Twoplayerenv):
 
         ## Terminate this function  if we determine the inputted is the winner as a result of their last action
 
-        if winner:
-            print("Terminating due to winner")
-            return winner
-
-
     ## Inspect the entire state space to see if all the spaces are filled
 
         ### Determine if a tie took place
@@ -434,7 +429,6 @@ class TicTacToe(Twoplayerenv):
 
     def display_state(self,state):
 
-        #board = np.array(state).reshape(3,3)
 
         print(state)
 
@@ -481,10 +475,24 @@ class Connect4(Twoplayerenv):
 
         if a < 0 and a > 6:
             return False
-        if not self.state[:,a] == "":
+        if self.fall(a) == -1:
             return False
 
         return True
+
+    def fall(self,a):
+
+        ## This method is returns the position where the piece will be placed on the board
+        ## Fall takes one parameter a which is the action
+
+        ## IF this column is filled then -1 returned as we
+
+
+        for x in reversed(range(len(self.state[:][a]))):
+            if not self.state[x][a]=="R" or not self.state[x][a] == "O":
+                return x
+
+        return -1
 
     def display_state(self,state):
         print(self.state)
@@ -497,11 +505,11 @@ class Connect4(Twoplayerenv):
 
         winner = self.directional_search(player=player,board=self.state,
                                         bound_x=self.state.shape[1],bound_y=self.state.shape[0],depth=3)
+        tie = True
 
         if not winner:
 
-
-
+        ### if the player we check for is not a winner let's check to see if we have a tie
             for y in range(len(self.state)):
                 for x in range(len(self.state[y])):
 
@@ -509,15 +517,12 @@ class Connect4(Twoplayerenv):
                         tie = False
 
 
-        return winner
+        return winner or tie
 
+    def update_env(self,action,player):
 
+        ##### UPDATE method for Connect4
+        pos = self.fall(action)
 
-
-
-
-
-
-
-
+        self.state[pos][action] = player.piece
 
