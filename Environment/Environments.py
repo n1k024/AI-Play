@@ -14,6 +14,8 @@ class Twoplayerenv(ABC):
 
         self.legal_action = False
 
+        self.bot_names = ["QPlayer","DbQPlayer"]
+
 
 
 
@@ -189,7 +191,7 @@ class Twoplayerenv(ABC):
             player1.record[0] += 1
             player2.record[1] += 1
 
-            if player1.name == "QPlayer":
+            if player1.name in self.bot_names:
 
                 player1.set_state(player1.state)
 
@@ -198,7 +200,7 @@ class Twoplayerenv(ABC):
                 player1.value_update(player1.state, player1.new_state,action=int(player1.action),reward=1)
 
 
-                if player2.name == "QPlayer":
+                if player2.name in self.bot_names:
                     player2.set_state(player2.state)
                     player2.set_next_state(self.state)
 
@@ -211,14 +213,14 @@ class Twoplayerenv(ABC):
 
                 print("Winner is", player2.name)
 
-                if player2.name == "QPlayer":
+                if player2.name in self.bot_names:
 
                     player2.set_state(player2.state)
                     player2.set_next_state(self.state)
 
                     player2.value_update(state=player2.state,new_state=player2.new_state,action=int(player2.action),reward=1)
 
-                if player1.name == "QPlayer":
+                if player1.name in self.bot_names:
                     player1.set_state(player1.state)
 
                     player1.set_next_state(self.state)
@@ -232,14 +234,14 @@ class Twoplayerenv(ABC):
                 player2.record[2] += 1
                 player1.record[2] += 1
 
-                if player1.name == "QPlayer":
+                if player1.name in self.bot_names:
                     player1.set_state(player1.state)
 
                     player1.set_next_state(self.state)
 
                     player1.value_update(player1.state, player1.new_state,reward=0,action=int(player1.action))
 
-                if player2.name == "QPlayer":
+                if player2.name in self.bot_names:
                     player2.set_state(player2.state)
 
                     player2.set_next_state(self.state)
@@ -276,7 +278,7 @@ class Twoplayerenv(ABC):
                         break
 
 
-                    if player2.name == 'QPlayer':
+                    if player2.name in self.bot_names:
                         player2.set_state(player2.state)
 
                         player2.set_next_state(self.state)
@@ -308,7 +310,7 @@ class Twoplayerenv(ABC):
                         break
 
 
-                    if player1.name =="QPlayer":
+                    if player1.name in self.bot_names:
 
                         player1.set_next_state(self.state)
 
@@ -495,7 +497,7 @@ class Connect4(Twoplayerenv):
         return -1
 
     def display_state(self,state):
-        print(self.state)
+        print(state)
 
     def iswinner(self,player):
 
