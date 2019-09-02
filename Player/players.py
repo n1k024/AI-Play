@@ -96,7 +96,7 @@ class QPlayer(Player, TabularRLAgent):
             if best_value is None or best_value < action_value:
                 best_value = action_value
                 best_action = action
-            if best_value != action_value:
+            if best_value != action_value :
                 switch = 0
 
         if best_value == 0:
@@ -113,7 +113,7 @@ class QPlayer(Player, TabularRLAgent):
 
         _, action_val = self.bestactionandvalue(new_state)
 
-        self.values[(state, action)] = prev_val + self.ALPHA * (reward + self.GAMMA * (action_val - prev_val))
+        self.values[(state, action)] = prev_val + self.ALPHA * (reward +  (self.GAMMA*action_val - prev_val))
 
     def executeaction(self):
         ## compute best action in a given state
@@ -131,7 +131,8 @@ class QPlayer(Player, TabularRLAgent):
 class DoubleQPLayer(TabularRLAgent, Player):
     def __init__(self, alpha=.1, name="DbQPlayer",gamma=.9):
         self.v2 = collections.defaultdict(float)
-        Player.__init__( self,name=name)
+
+        Player.__init__(self,name=name)
 
         TabularRLAgent.__init__(self,alpha=alpha,gamma = gamma)
 
@@ -145,13 +146,13 @@ class DoubleQPLayer(TabularRLAgent, Player):
             action =  self.best_action(self.values,new_state)
 
             self.values[(state,action)] = self.values[(state,action)] + self.ALPHA   \
-                                          *(reward + self.GAMMA *self.v2[(state,action)]  - self.values[(state,action)])
+                                          *(reward + (self.GAMMA *self.v2[(state,action)]  - self.values[(state,action)]))
         elif Z < .5:
 
             action = self.best_action(self.v2,new_state)
 
             self.v2[(state, action)] = self.v2[(state, action)] + self.ALPHA \
-                                       * (reward + self.GAMMA * self.values[(state, action)] - self.v2[(state, action)])
+                                       *( reward + (self.GAMMA * self.values[(state, action)] - self.v2[(state, action)]))
         else:
             self.value_update(state,action,new_state,reward)
 
@@ -161,12 +162,23 @@ class DoubleQPLayer(TabularRLAgent, Player):
     def best_action(self,values,state):
          best_value = -1
          best_action = 0
+         switch = 1
+
          for action in range(10):
              if values[(state, action)] > best_value:
 
                  best_value = values[(state, action)]
 
                  best_action = action
+
+         if best_value != 0:
+             switch = 0
+         elif best_value == 0:
+             switch = 1
+
+         if switch:
+             best_action= random.uniform(0,10)
+
          return best_action
 
 
