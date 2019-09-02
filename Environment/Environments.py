@@ -54,12 +54,12 @@ class Twoplayerenv(ABC):
     def reset_players_and_agents(self):
 
 
-        if self.player1.name == "QPlayer":
+        if self.player1.name in self.bot_names:
 
             self.player1.state = self.state
             self.player1.new_state = None
 
-        if self.player2.state == "QPlayer":
+        if self.player2.name in self.bot_names:
 
             self.player2.state = self.state
             self.player2.new_state = None
