@@ -226,20 +226,44 @@ class NStepQAgent(Player, TabularRLAgent):
         if len(self.r) == self.N + 1 or done:
 
             Gt = 0
+            k = 0
 
-            for x in range(self.N):
+            while not len(self.r) == 1:
                 br = self.r.pop()
                 ba = self.actions.pop()
                 bs = self.states.pop()
 
                 ### Compute the N-step return sum of future discounted reward
-                Gt = br + (self.GAMMA ** x) * Gt
+                Gt = br + (self.GAMMA ** k) * Gt
+
+                k += 1
 
             s = self.states.pop()
             a = self.actions.pop()
 
             ####### Update our lookup table of Q-values using the N-step return that we just computed (Gt)
             self.values[(s, a)] = self.values[(s, a)] + self.ALPHA * (Gt - self.values[(s, a)])
+
+    def best_action(self, state):
+        best_value = -1
+        best_action = 0
+        switch = 1
+
+        for action in range(10):
+            if self.values[(state, action)] > best_value:
+                best_value = self.values[(state, action)]
+
+                best_action = action
+
+        if best_value != 0:
+            switch = 0
+        elif best_value == 0:
+            switch = 1
+
+        if switch:
+            best_action = random.uniform(0, 10)
+
+        return best_action
 
     def executeaction(self):
 
