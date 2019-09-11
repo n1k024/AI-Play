@@ -196,7 +196,7 @@ class DoubleQPLayer(TabularRLAgent, Player):
 
 
 class NStepQAgent(Player, TabularRLAgent):
-    def __init__(self, N, name, gamma=.9, alpha=.1):
+    def __init__(self, N, name="NStepQ", gamma=.9, alpha=.1):
 
         #### N step Boostrapping agent that performs Q-Learning updates using partial returns consisting of N steps
 
@@ -275,3 +275,21 @@ class NStepQAgent(Player, TabularRLAgent):
         self.action = action
 
         return action
+class NStepDoubleQAgent(DoubleQPLayer,NStepQAgent):
+    def __init__(self,gamma,alpha,N):
+
+        ### This is an agent that theoretically aims decreasing bias to less than the Double or N-step agent
+        ## This agent uses both N-step returns and Double Learning
+
+        DoubleQPLayer.__init__(self,alpha=alpha,gamma=gamma)
+        NStepQAgent.__init__(self,N=N,alpha=alpha,gamma=gamma)
+
+        self.name = "NStepDouble"
+
+    def value_update(self,state,action,new_state,reward,done):
+        NStepQAgent.value_update(self,state,action,new_state,reward,done=done)
+
+    def executeaction(self):
+        DoubleQPLayer.executeaction(self)
+
+
