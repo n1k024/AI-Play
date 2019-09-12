@@ -2,6 +2,11 @@
 
 Allowing Humans and AI play together, unlike other environments such as gym. AI-Play allows the huamn or AI to play witn one another.
 
+Requirements
+
+Python
+
+
 The structure is as follows
 
 root/
@@ -33,5 +38,5 @@ Players/
  
  Currently  only  environment available are TicTacToe and Connect4 we plan to include other board-like games.
  
- To use AI-Play simply create your player objects and then pass them into the contrete TwoPlayerEnv class.
+ To use AI-Play simply create your player objects and then pass them into the contrete TwoPlayerEnv class. Please keep in mind you will need to create a Python script to call the environment and the two player objects you wish to use for that environment.
   
