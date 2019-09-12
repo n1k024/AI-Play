@@ -143,18 +143,18 @@ class DoubleQPLayer(TabularRLAgent, Player):
         ### Updating of Q-values occurs here notice we are using two lookup table here, we basically flip a coin to determine which table we will update
 
         if Z > .5:
-            action = self.best_action(self.values, new_state)
+            a = self.best_action(self.values, new_state)
 
             self.values[(state, action)] = self.values[(state, action)] + self.ALPHA \
                                            * (reward + (
-                    self.GAMMA * self.v2[(state, action)] - self.values[(state, action)]))
+                    self.GAMMA * self.v2[(state, a)] - self.values[(state, action)]))
         elif Z < .5:
 
-            action = self.best_action(self.v2, new_state)
+            a = self.best_action(self.v2, new_state)
 
             self.v2[(state, action)] = self.v2[(state, action)] + self.ALPHA \
                                        * (reward + (
-                    self.GAMMA * self.values[(state, action)] - self.v2[(state, action)]))
+                    self.GAMMA * self.values[(state, a)] - self.v2[(state, action)]))
         else:
             self.value_update(state, action, new_state, reward)
 
@@ -288,6 +288,54 @@ class NStepDoubleQAgent(DoubleQPLayer,NStepQAgent):
 
     def value_update(self,state,action,new_state,reward,done):
         NStepQAgent.value_update(self,state,action,new_state,reward,done=done)
+
+        if not self.r:
+            self.r.append(reward)
+            self.actions.append(action)
+            self.states.append(state)
+
+        ## Store the trasition (s',a,r) in lists
+        self.r.append(reward)
+        self.states.append(new_state)
+        self.actions.append(action)
+
+        if len(self.r) == self.N + 1 or done:
+
+            Gt = 0
+            k = 0
+
+            while not len(self.r) == 1:
+                br = self.r.pop()
+                ba = self.actions.pop()
+                bs = self.states.pop()
+
+                ### Compute the N-step return sum of future discounted reward
+                Gt = br + (self.GAMMA ** k) * Gt
+
+                k += 1
+
+            s = self.states.pop()
+            a = self.actions.pop()
+
+            Z = random.uniform(0, 1)
+
+            ### Updating of Q-values occurs here notice we are using two lookup table here, we basically flip a coin to determine which table we will update
+            #### Perform update using n-step partial return Gt
+            if Z > .5:
+
+                self.values[(s, a)] = self.values[(s, a)] + self.ALPHA \
+                                               * (reward + (
+                        Gt - self.values[(s, a)]))
+            elif Z < .5:
+
+
+                self.v2[(s, a)] = self.v2[(s, a)] + self.ALPHA \
+                                           * (reward + (
+                        Gt - self.v2[(s, a)]))
+            else:
+                self.value_update(state, action, new_state, reward,done)
+
+
 
     def executeaction(self):
         DoubleQPLayer.executeaction(self)
