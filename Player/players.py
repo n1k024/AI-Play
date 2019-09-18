@@ -362,8 +362,8 @@ class NStepDoubleQAgent(Player,TabularRLAgent):
         switch = 1
 
         for action in range(10):
-            if self.values[(state, action)] > best_value:
-                best_value = self.values[(state, action)]
+            if values[(state, action)] > best_value:
+                best_value = values[(state, action)]
 
                 best_action = action
 
