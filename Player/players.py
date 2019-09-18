@@ -275,19 +275,27 @@ class NStepQAgent(Player, TabularRLAgent):
         self.action = action
 
         return action
-class NStepDoubleQAgent(DoubleQPLayer,NStepQAgent):
-    def __init__(self,gamma,alpha,N):
+class NStepDoubleQAgent(Player,TabularRLAgent):
+    def __init__(self,gamma,alpha,N=2,name="NStepDouble"):
+
+        Player.__init__(self,name=name)
+        TabularRLAgent.__init__(self,alpha=alpha,gamma=gamma)
+
+        self.N = N
+        self.v2 = collections.defaultdict(float)
+
+        self.r = []
+        self.actions = []
+        self.states = []
+
+
 
         ### This is an agent that theoretically aims decreasing bias to less than the Double or N-step agent
         ## This agent uses both N-step returns and Double Learning
 
-        DoubleQPLayer.__init__(self,alpha=alpha,gamma=gamma)
-        NStepQAgent.__init__(self,N=N,alpha=alpha,gamma=gamma)
 
-        self.name = "NStepDouble"
+    def value_update(self,state,action,new_state,reward,done=0):
 
-    def value_update(self,state,action,new_state,reward,done):
-        NStepQAgent.value_update(self,state,action,new_state,reward,done=done)
 
         if not self.r:
             self.r.append(reward)
@@ -336,8 +344,37 @@ class NStepDoubleQAgent(DoubleQPLayer,NStepQAgent):
                 self.value_update(state, action, new_state, reward,done)
 
 
-
     def executeaction(self):
-        DoubleQPLayer.executeaction(self)
+        Z = random.uniform(0, 1)
+        if Z > .5:
+            self.action = self.best_action(self.values, self.state)
+        elif Z < .5:
+            self.action = self.best_action(self.v2, self.state)
+        else:
+            ## If there are ties at which it is .5 we call the executeaction again
+            self.executeaction()
+
+        return self.action
+
+    def best_action(self, values, state):
+        best_value = -1
+        best_action = 0
+        switch = 1
+
+        for action in range(10):
+            if self.values[(state, action)] > best_value:
+                best_value = self.values[(state, action)]
+
+                best_action = action
+
+        if best_value != 0:
+            switch = 0
+        elif best_value == 0:
+            switch = 1
+
+        if switch:
+            best_action = random.uniform(0, 10)
+
+        return best_action
 
 
