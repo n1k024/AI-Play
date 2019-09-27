@@ -87,7 +87,6 @@ class QPlayer(Player, TabularRLAgent):
         switch = 1
         best_value, best_action = None, None
 
-        # state = self.stringify(state)
 
         for action in range(10):
 
@@ -276,7 +275,7 @@ class NStepQAgent(Player, TabularRLAgent):
 
         return action
 class NStepDoubleQAgent(Player,TabularRLAgent):
-    def __init__(self,gamma,alpha,N=2,name="NStepDouble"):
+    def __init__(self, gamma=.9, alpha=.1, N=2, name="NStepDouble"):
 
         Player.__init__(self,name=name)
         TabularRLAgent.__init__(self,alpha=alpha,gamma=gamma)
@@ -293,29 +292,28 @@ class NStepDoubleQAgent(Player,TabularRLAgent):
         ### This is an agent that theoretically aims decreasing bias to less than the Double or N-step agent
         ## This agent uses both N-step returns and Double Learning
 
-
-    def value_update(self,state,action,new_state,reward,done=0):
+    def value_update(self, state, action, new_state, reward=0, done=0):
 
 
         if not self.r:
             self.r.append(reward)
             self.actions.append(action)
             self.states.append(state)
+        else:
+            self.states.append(state)
+            self.actions.append(action)
+            self.r.append(reward)
 
-        ## Store the trasition (s',a,r) in lists
-        self.r.append(reward)
-        self.states.append(new_state)
-        self.actions.append(action)
 
         if len(self.r) == self.N + 1 or done:
 
             Gt = 0
             k = 0
 
-            while not len(self.r) == 1:
+            while not len(self.states) > 1:
                 br = self.r.pop()
-                ba = self.actions.pop()
-                bs = self.states.pop()
+                self.actions.pop()
+                self.states.pop()
 
                 ### Compute the N-step return sum of future discounted reward
                 Gt = br + (self.GAMMA ** k) * Gt
@@ -342,7 +340,6 @@ class NStepDoubleQAgent(Player,TabularRLAgent):
                         Gt - self.v2[(s, a)]))
             else:
                 self.value_update(state, action, new_state, reward,done)
-
 
     def executeaction(self):
         Z = random.uniform(0, 1)
