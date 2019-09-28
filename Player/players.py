@@ -216,6 +216,10 @@ class NStepQAgent(Player, TabularRLAgent):
             self.r.append(reward)
             self.actions.append(action)
             self.states.append(state)
+        else:
+            self.r.append(reward)
+            self.actions.append(action)
+            self.states.append(state)
 
         ## Store the trasition (s',a,r) in lists
         self.r.append(reward)
