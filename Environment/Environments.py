@@ -42,11 +42,11 @@ class Twoplayerenv(ABC):
     def reset_players_and_agents(self):
 
         if self.player1.name in self.bot_names:
-            self.player1.state = self.state
+            self.player1.set_state(self.state)
             self.player1.new_state = None
 
         if self.player2.name in self.bot_names:
-            self.player2.state = self.state
+            self.player2.set_state(self.state)
             self.player2.new_state = None
 
             ### console should display an empty respresentation of the environment at time step t for human player
@@ -151,7 +151,8 @@ class Twoplayerenv(ABC):
 
                 player1.set_next_state(self.state)
 
-                player1.value_update(player1.state, player1.new_state, action=int(player1.action), reward=1, done=1)
+                player1.value_update(state=player1.state, new_state=player1.new_state, action=player1.action, reward=1,
+                                     done=1)
 
                 if player2.name in self.bot_names:
                     player2.set_state(player2.state)
@@ -190,16 +191,14 @@ class Twoplayerenv(ABC):
             player1.record[2] += 1
 
             if player1.name in self.bot_names:
-                player1.set_state(player1.state)
+                player1.set_state(player1.new_state)
 
-                player1.set_next_state(self.state)
-
-                player1.value_update(player1.state, player1.new_state, reward=0, action=int(player1.action), done=1)
+                player1.value_update(state=player1.state, new_state=player1.new_state, reward=0, action=player1.action,
+                                     done=1)
 
             if player2.name in self.bot_names:
-                player2.set_state(player2.state)
+                player2.set_next_state(player2.state)
 
-                player2.set_next_state(self.state)
 
                 player2.value_update(state=player2.state, new_state=player2.new_state, reward=0,
                                      action=int(player2.action), done=1)
@@ -229,7 +228,6 @@ class Twoplayerenv(ABC):
                 break
 
             if player2.name in self.bot_names:
-                player2.set_state(player2.state)
 
                 player2.set_next_state(self.state)
 
@@ -254,11 +252,16 @@ class Twoplayerenv(ABC):
 
             if player1.name in self.bot_names:
 
-                player1.set_next_state(self.state)
+                player1.set_state(self.state)
 
-                player1.value_update(player1.state, player1.new_state, action=player1.action)
+                print("Action chosen", player1.action)
 
-                player1.state = player1.new_state
+                player1.value_update(player1.state, player1.new_state, player1.action)
+
+                player1.set_next_state(player1.state)
+
+
+
             else:
                 ## Display the current state of the environment for  our human player
                 self.display_state(self.state)
