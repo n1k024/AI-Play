@@ -116,13 +116,11 @@ class QPlayer(Player, TabularRLAgent):
 
     def executeaction(self):
         ## compute best action in a given state
-        print('QPlayer Executes')
-
         _, action = self.bestactionandvalue(self.state)
 
-        self.action = action
+        self.action = int(action)
 
-        return action
+        return int(action)
 
 
 ### This RL agent uses a technique known as Double Learning ,it can be applied to almost any TD method such as SARSA and Q-Learning
@@ -271,7 +269,7 @@ class NStepQAgent(Player, TabularRLAgent):
     def executeaction(self):
 
         ### Semi-Greedy Action Selection
-        action = self.best_action(self.state)
+        action = int(self.best_action(self.state))
 
         #### Epsilon Greedy Action Selection
 
@@ -348,9 +346,9 @@ class NStepDoubleQAgent(Player,TabularRLAgent):
     def executeaction(self):
         Z = random.uniform(0, 1)
         if Z > .5:
-            self.action = self.best_action(self.values, self.state)
+            self.action = int(self.best_action(self.values, self.state))
         elif Z < .5:
-            self.action = self.best_action(self.v2, self.state)
+            self.action = int(self.best_action(self.v2, self.state))
         else:
             ## If there are ties at which it is .5 we call the executeaction again
             self.executeaction()
@@ -376,6 +374,4 @@ class NStepDoubleQAgent(Player,TabularRLAgent):
         if switch:
             best_action = random.uniform(0, 10)
 
-        return best_action
-
-
+        return int(best_action)

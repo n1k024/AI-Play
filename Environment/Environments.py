@@ -254,8 +254,6 @@ class Twoplayerenv(ABC):
 
                 player1.set_state(self.state)
 
-                print("Action chosen", player1.action)
-
                 player1.value_update(player1.state, player1.new_state, player1.action)
 
                 player1.set_next_state(player1.state)
