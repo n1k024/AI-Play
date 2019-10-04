@@ -58,7 +58,7 @@ class TabularRLAgent(ABC):
 
         a = action
 
-        if random.random() > epsilon:
+        if random.random() < epsilon:
             a = random.uniform(0, 10)
 
         ### return epsilon greedy action selection
