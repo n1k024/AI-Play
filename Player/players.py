@@ -31,6 +31,17 @@ class TabularRLAgent(ABC):
         self.GAMMA = gamma
         self.EPSILON = epsilon
 
+        if epsilon < 0 or epsilon > 1:
+            self.EPSILON = .05
+
+        if alpha < 0 or alpha > 1:
+            self.ALPHA = .1
+
+        if gamma < 0 or gamma > 1:
+            self.GAMMA = .9
+
+
+
     @abstractmethod
     def value_update(self, state, action, new_state, reward, done=0):
         pass
