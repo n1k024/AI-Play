@@ -22,13 +22,14 @@ class Player(ABC):
 
 
 class TabularRLAgent(ABC):
-    def __init__(self, alpha=.1, gamma=.9):
+    def __init__(self, alpha=.1, gamma=.9, epsilon=.05):
         self.values = collections.defaultdict(float)
         self.state = ""
         self.new_state = ""
         self.ALPHA = alpha
         self.reward = 0
         self.GAMMA = gamma
+        self.EPSILON = epsilon
 
     @abstractmethod
     def value_update(self, state, action, new_state, reward, done=0):
@@ -52,6 +53,16 @@ class TabularRLAgent(ABC):
                 string_state = string_state + ',' + state[y][x]
 
         return string_state
+
+    def epsilon_greedy_action_selection(self, action, epsilon):
+
+        a = action
+
+        if random.random() > epsilon:
+            a = random.uniform(0, 10)
+
+        ### return epsilon greedy action selection
+        return a
 
 
 class HumanPlayer(Player):
@@ -77,11 +88,11 @@ class HumanPlayer(Player):
 
 
 class QPlayer(Player, TabularRLAgent):
-    def __init__(self, alpha=.01, name="QPlayer", gamma=.9):
+    def __init__(self, alpha=.01, name="QPlayer", gamma=.9, epsilon=.05):
 
         Player.__init__(self, name=name)
 
-        TabularRLAgent.__init__(self, alpha=alpha, gamma=gamma)
+        TabularRLAgent.__init__(self, alpha=alpha, gamma=gamma, epsilon=epsilon)
 
     def bestactionandvalue(self, state):
         switch = 1
@@ -118,6 +129,8 @@ class QPlayer(Player, TabularRLAgent):
         ## compute best action in a given state
         _, action = self.bestactionandvalue(self.state)
 
+        action = self.epsilon_greedy_action_selection(action, self.EPSILON)
+
         self.action = int(action)
 
         return int(action)
@@ -126,12 +139,12 @@ class QPlayer(Player, TabularRLAgent):
 ### This RL agent uses a technique known as Double Learning ,it can be applied to almost any TD method such as SARSA and Q-Learning
 ## This Agent will use double learning to avoid maximization bias obtained from the max operation in Q-Learning
 class DoubleQPLayer(TabularRLAgent, Player):
-    def __init__(self, alpha=.1, name="DbQPlayer", gamma=.9):
+    def __init__(self, alpha=.1, name="DbQPlayer", gamma=.9, epsilon=.05):
         self.v2 = collections.defaultdict(float)
 
         Player.__init__(self, name=name)
 
-        TabularRLAgent.__init__(self, alpha=alpha, gamma=gamma)
+        TabularRLAgent.__init__(self, alpha=alpha, gamma=gamma, epsilon=epsilon)
 
     def value_update(self, state, action, new_state, reward=0, done=0):
 
@@ -189,11 +202,13 @@ class DoubleQPLayer(TabularRLAgent, Player):
             ## If there are ties at which it is .5 we call the executeaction again
             self.executeaction()
 
+        self.action = self.epsilon_greedy_action_selection(action=self.action, epsilon=self.EPSILON)
+
         return self.action
 
 
 class NStepQAgent(Player, TabularRLAgent):
-    def __init__(self, N, name="NStepQ", gamma=.9, alpha=.1):
+    def __init__(self, N, name="NStepQ", gamma=.9, alpha=.1, epsilon=.05):
 
         #### N step Boostrapping agent that performs Q-Learning updates using partial returns consisting of N steps
 
@@ -206,7 +221,7 @@ class NStepQAgent(Player, TabularRLAgent):
         self.states = []
 
         Player.__init__(self, name=name)
-        TabularRLAgent.__init__(self, alpha=alpha, gamma=gamma)
+        TabularRLAgent.__init__(self, alpha=alpha, gamma=gamma, epsilon=epsilon)
 
     def value_update(self, state, action, new_state, reward, done=0):
 
@@ -272,15 +287,16 @@ class NStepQAgent(Player, TabularRLAgent):
         action = int(self.best_action(self.state))
 
         #### Epsilon Greedy Action Selection
+        action = self.epsilon_greedy_action_selection(action, self.EPSILON)
 
         self.action = action
 
         return action
 class NStepDoubleQAgent(Player,TabularRLAgent):
-    def __init__(self, gamma=.9, alpha=.1, N=2, name="NStepDouble"):
+    def __init__(self, gamma=.9, alpha=.1, N=2, name="NStepDouble", epsilon=.05):
 
         Player.__init__(self,name=name)
-        TabularRLAgent.__init__(self,alpha=alpha,gamma=gamma)
+        TabularRLAgent.__init__(self, alpha=alpha, gamma=gamma, epsilon=epsilon)
 
         self.N = N
         self.v2 = collections.defaultdict(float)
@@ -352,6 +368,8 @@ class NStepDoubleQAgent(Player,TabularRLAgent):
         else:
             ## If there are ties at which it is .5 we call the executeaction again
             self.executeaction()
+
+            self.action = self.epsilon_greedy_action_selection(self.action, self.EPSILON)
 
         return self.action
 
