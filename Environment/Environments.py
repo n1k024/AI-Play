@@ -409,11 +409,14 @@ class Connect4(Twoplayerenv):
 
         ## IF this column is filled then -1 returned as we
 
-        for x in reversed(range(len(self.state[:][a]))):
+        for x in range(6):
+            z = None
             if not self.state[x][a] == "R" or not self.state[x][a] == "O":
-                return x
+                z = x
+            else:
+                z = -1
 
-        return -1
+        return z
 
     def display_state(self, state):
         print(state)
@@ -448,6 +451,7 @@ class Connect4(Twoplayerenv):
     def update_env(self, action, player):
 
         ##### UPDATE method for Connect4
+
         pos = self.fall(action)
 
         self.state[pos][action] = player.piece
