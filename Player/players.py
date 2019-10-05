@@ -22,7 +22,7 @@ class Player(ABC):
 
 
 class TabularRLAgent(ABC):
-    def __init__(self, alpha=.1, gamma=.9, epsilon=.05):
+    def __init__(self, alpha=.1, gamma=.9, epsilon=.05, decay=.99):
         self.values = collections.defaultdict(float)
         self.state = ""
         self.new_state = ""
@@ -30,6 +30,7 @@ class TabularRLAgent(ABC):
         self.reward = 0
         self.GAMMA = gamma
         self.EPSILON = epsilon
+        self.DECAY = decay
 
         if epsilon < 0 or epsilon > 1:
             self.EPSILON = .05
@@ -65,6 +66,10 @@ class TabularRLAgent(ABC):
 
         return string_state
 
+    def adjust_learning_rate(self, alpha, decay, done=0):
+        if done:
+            alpha = alpha * decay
+        return alpha
     def epsilon_greedy_action_selection(self, action, epsilon):
 
         a = action
@@ -99,7 +104,7 @@ class HumanPlayer(Player):
 
 
 class QPlayer(Player, TabularRLAgent):
-    def __init__(self, alpha=.01, name="QPlayer", gamma=.9, epsilon=.05):
+    def __init__(self, alpha=.1, name="QPlayer", gamma=.9, epsilon=.05):
 
         Player.__init__(self, name=name)
 
@@ -135,6 +140,8 @@ class QPlayer(Player, TabularRLAgent):
         _, action_val = self.bestactionandvalue(new_state)
 
         self.values[(state, action)] = prev_val + self.ALPHA * (reward + (self.GAMMA * action_val - prev_val))
+
+        self.ALPHA = self.adjust_learning_rate(self.ALPHA, self.DECAY, done)
 
     def executeaction(self):
         ## compute best action in a given state
@@ -178,6 +185,8 @@ class DoubleQPLayer(TabularRLAgent, Player):
                     self.GAMMA * self.values[(state, a)] - self.v2[(state, action)]))
         else:
             self.value_update(state, action, new_state, reward)
+
+            self.ALPHA = self.adjust_learning_rate(self.ALPHA, self.DECAY, done)
 
     def best_action(self, values, state):
         best_value = -1
@@ -270,6 +279,8 @@ class NStepQAgent(Player, TabularRLAgent):
 
             ####### Update our lookup table of Q-values using the N-step return that we just computed (Gt)
             self.values[(s, a)] = self.values[(s, a)] + self.ALPHA * (Gt - self.values[(s, a)])
+
+            self.ALPHA = self.adjust_learning_rate(self.ALPHA, self.DECAY, done)
 
     def best_action(self, state):
         best_value = -1
@@ -369,6 +380,8 @@ class NStepDoubleQAgent(Player,TabularRLAgent):
                         Gt - self.v2[(s, a)]))
             else:
                 self.value_update(state, action, new_state, reward,done)
+
+            self.ALPHA = self.adjust_learning_rate(self.ALPHA, self.DECAY, done)
 
     def executeaction(self):
         Z = random.uniform(0, 1)
