@@ -1,6 +1,6 @@
 # AI-Play
 
-Allowing Humans and AI play together, unlike other environments such as gym. AI-Play allows the huamn or AI to play witn one another.
+Allowing Humans and AI play together, unlike other environments such as gym. AI-Play allows the huamn or AI to play witn one another. AI-Play is an educational ,research framework for experimenting with AI agents. 
 
 Requirements
 
