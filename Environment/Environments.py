@@ -184,7 +184,6 @@ class Twoplayerenv(ABC):
                                      action=int(player1.action), done=1)
 
         else:
-
             print("TIE !!!")
 
             player2.record[2] += 1
@@ -198,7 +197,6 @@ class Twoplayerenv(ABC):
 
             if player2.name in self.bot_names:
                 player2.set_next_state(player2.state)
-
 
                 player2.value_update(state=player2.state, new_state=player2.new_state, reward=0,
                                      action=int(player2.action), done=1)
@@ -220,7 +218,7 @@ class Twoplayerenv(ABC):
             while not self.legal_action:
                 a = player1.executeaction()
 
-                self.legal_action = self.islegal_action(a)
+                self.legal_action = self.islegal_action(int(a))
 
             self.update_env(action=player1.action, player=player1)
 
@@ -241,7 +239,7 @@ class Twoplayerenv(ABC):
 
             while not self.legal_action:
                 a = player2.executeaction()
-                self.legal_action = self.islegal_action(a)
+                self.legal_action = self.islegal_action(int(a))
 
             ## update our environment after executing actions onto it
             self.update_env(player2.action, player2)
@@ -395,9 +393,13 @@ class Connect4(Twoplayerenv):
 
     def islegal_action(self, a):
 
-        if a < 0 and a > 6:
+        if a > 6:
             return False
-        if self.fall(a) == -1:
+
+        if a < 0:
+            return False
+
+        if not self.column_check(a):
             return False
 
         return True
@@ -407,16 +409,31 @@ class Connect4(Twoplayerenv):
         ## This method is returns the position where the piece will be placed on the board
         ## Fall takes one parameter a which is the action
 
-        ## IF this column is filled then -1 returned as we
+        ############ For some reason we have bizzare values of a that are out of bounds
+        print("Action Selected", a)
 
-        for x in range(6):
-            z = None
+        ## IF this column is filled then -1 returned as we
+        z = None
+        ##### Make while loop terninating on the condition on the conditions of if we reach a piece or column is filled
+        for x in (range(6)):
+
             if not self.state[x][a] == "R" or not self.state[x][a] == "O":
                 z = x
             else:
                 z = -1
-
+        print("POsition Value", z)
         return z
+
+    def column_check(self, a):
+
+        #### This function will examine a column in the array to determine if a slot exists
+
+        result = False
+        for row in range(6):
+            if not self.state[row][a] == "R" or not self.state[row][a] == "O":
+                result = True
+
+        return result
 
     def display_state(self, state):
         print(state)
@@ -451,7 +468,6 @@ class Connect4(Twoplayerenv):
     def update_env(self, action, player):
 
         ##### UPDATE method for Connect4
-
         pos = self.fall(action)
 
         self.state[pos][action] = player.piece
