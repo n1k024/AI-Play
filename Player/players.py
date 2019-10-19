@@ -4,6 +4,8 @@ import collections
 
 import random
 
+import pickle
+
 
 class Player(ABC):
     def __init__(self, name):
@@ -41,10 +43,14 @@ class TabularRLAgent(ABC):
         if gamma < 0 or gamma > 1:
             self.GAMMA = .9
 
-
-
     @abstractmethod
     def value_update(self, state, action, new_state, reward, done=0):
+        pass
+
+    def load(self):
+        pass
+
+    def save(self):
         pass
 
     def set_next_state(self, next_state):
@@ -70,6 +76,7 @@ class TabularRLAgent(ABC):
         if done:
             alpha = alpha * decay
         return alpha
+
     def epsilon_greedy_action_selection(self, action, epsilon):
 
         a = action
@@ -88,7 +95,10 @@ class HumanPlayer(Player):
         Player.__init__(self, name=name)
 
     def executeaction(self):
+        """
 
+        :rtype: int
+        """
         action = input("Select an action to execute ")
 
         if str.isdigit(action):
@@ -98,7 +108,7 @@ class HumanPlayer(Player):
         else:
             self.executeaction()
 
-        print(action)
+        print(type(action))
 
         return action
 
@@ -113,7 +123,6 @@ class QPlayer(Player, TabularRLAgent):
     def bestactionandvalue(self, state):
         switch = 1
         best_value, best_action = None, None
-
 
         for action in range(10):
 
@@ -314,10 +323,15 @@ class NStepQAgent(Player, TabularRLAgent):
         self.action = action
 
         return action
-class NStepDoubleQAgent(Player,TabularRLAgent):
+
+
+### This is an agent that theoretically aims decreasing bias to less than the Double or N-step agent
+## This agent uses both N-step returns and Double Learning
+#### Theoretical decrease in bias comes from taking N-step return and Double Learning
+class NStepDoubleQAgent(Player, TabularRLAgent):
     def __init__(self, gamma=.9, alpha=.1, N=2, name="NStepDouble", epsilon=.05):
 
-        Player.__init__(self,name=name)
+        Player.__init__(self, name=name)
         TabularRLAgent.__init__(self, alpha=alpha, gamma=gamma, epsilon=epsilon)
 
         self.N = N
@@ -328,12 +342,7 @@ class NStepDoubleQAgent(Player,TabularRLAgent):
         self.states = []
 
 
-
-        ### This is an agent that theoretically aims decreasing bias to less than the Double or N-step agent
-        ## This agent uses both N-step returns and Double Learning
-
     def value_update(self, state, action, new_state, reward=0, done=0):
-
 
         if not self.r:
             self.r.append(reward)
@@ -343,7 +352,6 @@ class NStepDoubleQAgent(Player,TabularRLAgent):
             self.states.append(state)
             self.actions.append(action)
             self.r.append(reward)
-
 
         if len(self.r) == self.N + 1 or done:
 
@@ -370,16 +378,15 @@ class NStepDoubleQAgent(Player,TabularRLAgent):
             if Z > .5:
 
                 self.values[(s, a)] = self.values[(s, a)] + self.ALPHA \
-                                               * (reward + (
+                                      * (reward + (
                         Gt - self.values[(s, a)]))
             elif Z < .5:
 
-
                 self.v2[(s, a)] = self.v2[(s, a)] + self.ALPHA \
-                                           * (reward + (
+                                  * (reward + (
                         Gt - self.v2[(s, a)]))
             else:
-                self.value_update(state, action, new_state, reward,done)
+                self.value_update(state, action, new_state, reward, done)
 
             self.ALPHA = self.adjust_learning_rate(self.ALPHA, self.DECAY, done)
 
