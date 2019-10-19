@@ -72,8 +72,8 @@ class TabularRLAgent(ABC):
 
         return string_state
 
-    def adjust_learning_rate(self, alpha, decay, done=0):
-        if done:
+    def adjust_learning_rate(self, alpha, decay, done=0, min_alpha=.0001):
+        if done and alpha >= min_alpha:
             alpha = alpha * decay
         return alpha
 
