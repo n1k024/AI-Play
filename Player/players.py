@@ -4,6 +4,8 @@ import collections
 
 import random
 
+import os
+
 import pickle
 
 
@@ -42,6 +44,7 @@ class TabularRLAgent(ABC):
 
         if gamma < 0 or gamma > 1:
             self.GAMMA = .9
+        self.load()
 
     @abstractmethod
     def value_update(self, state, action, new_state, reward, done=0):
@@ -162,6 +165,16 @@ class QPlayer(Player, TabularRLAgent):
 
         return int(action)
 
+    def save(self):
+        with open('values/' + self.name + '.pkl', 'wb') as f:
+            pickle.dump(self.values, f, pickle.HIGHEST_PROTOCOL)
+            f.close()
+
+    def load(self):
+        if os.path.isfile("values/" + self.name + '.pkl'):
+            with open('values/' + self.name + '.pkl', 'rb') as f:
+                self.values = pickle.load(f)
+
 
 ### This RL agent uses a technique known as Double Learning ,it can be applied to almost any TD method such as SARSA and Q-Learning
 ## This Agent will use double learning to avoid maximization bias obtained from the max operation in Q-Learning
@@ -234,6 +247,24 @@ class DoubleQPLayer(TabularRLAgent, Player):
         self.action = self.epsilon_greedy_action_selection(action=self.action, epsilon=self.EPSILON)
 
         return self.action
+
+    def save(self):
+        with open('values/' + self.name + '.pkl', 'wb') as f:
+            pickle.dump(self.values, f, pickle.HIGHEST_PROTOCOL)
+            f.close()
+        with open('values/' + self.name + '2.pkl', 'wb') as f:
+            pickle.dump(self.v2, f, pickle.HIGHEST_PROTOCOL)
+            f.close()
+
+    def load(self):
+
+        if os.path.isfile("values/" + self.name + '.pkl'):
+            with open('values/' + self.name + '.pkl', 'rb') as f:
+                self.values = pickle.load(f)
+
+        if os.path.isfile("values/" + self.name + '2.pkl'):
+            with open('values/' + self.name + '2.pkl', 'rb') as f:
+                self.v2 = pickle.load(f)
 
 
 class NStepQAgent(Player, TabularRLAgent):
@@ -324,10 +355,20 @@ class NStepQAgent(Player, TabularRLAgent):
 
         return action
 
+    def save(self):
+        with open('values/' + self.name + '.pkl', 'wb') as f:
+            pickle.dump(self.values, f, pickle.HIGHEST_PROTOCOL)
+            f.close()
+
+    def load(self):
+        if os.path.isfile("values/" + self.name + '.pkl'):
+            with open('values/' + self.name + '.pkl', 'rb') as f:
+                self.values = pickle.load(f)
+
 
 ### This is an agent that theoretically aims decreasing bias to less than the Double or N-step agent
 ## This agent uses both N-step returns and Double Learning
-#### Theoretical decrease in bias comes from taking N-step return and Double Learning
+### Theoretical decrease in bias comes from taking N-step return and Double Learning
 class NStepDoubleQAgent(Player, TabularRLAgent):
     def __init__(self, gamma=.9, alpha=.1, N=2, name="NStepDouble", epsilon=.05):
 
@@ -340,7 +381,6 @@ class NStepDoubleQAgent(Player, TabularRLAgent):
         self.r = []
         self.actions = []
         self.states = []
-
 
     def value_update(self, state, action, new_state, reward=0, done=0):
 
@@ -424,3 +464,20 @@ class NStepDoubleQAgent(Player, TabularRLAgent):
             best_action = random.uniform(0, 10)
 
         return int(best_action)
+
+    def save(self):
+        with open('values/' + self.name + '.pkl', 'wb') as f:
+            pickle.dump(self.values, f, pickle.HIGHEST_PROTOCOL)
+            f.close()
+        with open('values/' + self.name + '2.pkl', 'wb') as f:
+            pickle.dump(self.v2, f, pickle.HIGHEST_PROTOCOL)
+            f.close()
+
+    def load(self):
+        if os.path.isfile("values/" + self.name + '.pkl'):
+            with open('values/' + self.name + '.pkl', 'rb') as f:
+                self.values = pickle.load(f)
+
+        if os.path.isfile("values/" + self.name + '2.pkl'):
+            with open('values/' + self.name + '2.pkl', 'rb') as f:
+                self.v2 = pickle.load(f)
