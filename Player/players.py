@@ -26,7 +26,7 @@ class Player(ABC):
 
 
 class TabularRLAgent(ABC):
-    def __init__(self, alpha=.1, gamma=.9, epsilon=.05, decay=.99):
+    def __init__(self, alpha=.1, gamma=.9, epsilon=.05, decay=.99, min_alpha=.0001):
         self.values = collections.defaultdict(float)
         self.state = ""
         self.new_state = ""
@@ -35,6 +35,7 @@ class TabularRLAgent(ABC):
         self.GAMMA = gamma
         self.EPSILON = epsilon
         self.DECAY = decay
+        self.min_alpha = min_alpha
 
         if epsilon < 0 or epsilon > 1:
             self.EPSILON = .05
@@ -117,11 +118,11 @@ class HumanPlayer(Player):
 
 
 class QPlayer(Player, TabularRLAgent):
-    def __init__(self, alpha=.1, name="QPlayer", gamma=.9, epsilon=.05):
+    def __init__(self, alpha=.1, name="QPlayer", gamma=.9, epsilon=.05, min_alpha=.0001):
 
         Player.__init__(self, name=name)
 
-        TabularRLAgent.__init__(self, alpha=alpha, gamma=gamma, epsilon=epsilon)
+        TabularRLAgent.__init__(self, alpha=alpha, gamma=gamma, epsilon=epsilon, min_alpha=min_alpha)
 
     def bestactionandvalue(self, state):
         switch = 1
@@ -153,7 +154,7 @@ class QPlayer(Player, TabularRLAgent):
 
         self.values[(state, action)] = prev_val + self.ALPHA * (reward + (self.GAMMA * action_val - prev_val))
 
-        self.ALPHA = self.adjust_learning_rate(self.ALPHA, self.DECAY, done)
+        self.ALPHA = self.adjust_learning_rate(alpha=self.ALPHA, decay=self.DECAY, done=done, min_alpha=self.min_alpha)
 
     def executeaction(self):
         ## compute best action in a given state
@@ -179,12 +180,12 @@ class QPlayer(Player, TabularRLAgent):
 ### This RL agent uses a technique known as Double Learning ,it can be applied to almost any TD method such as SARSA and Q-Learning
 ## This Agent will use double learning to avoid maximization bias obtained from the max operation in Q-Learning
 class DoubleQPLayer(TabularRLAgent, Player):
-    def __init__(self, alpha=.1, name="DbQPlayer", gamma=.9, epsilon=.05):
+    def __init__(self, alpha=.1, name="DbQPlayer", gamma=.9, epsilon=.05, min_alpha=.0001):
         self.v2 = collections.defaultdict(float)
 
         Player.__init__(self, name=name)
 
-        TabularRLAgent.__init__(self, alpha=alpha, gamma=gamma, epsilon=epsilon)
+        TabularRLAgent.__init__(self, alpha=alpha, gamma=gamma, epsilon=epsilon, min_alpha=min_alpha)
 
     def value_update(self, state, action, new_state, reward=0, done=0):
 
@@ -208,7 +209,8 @@ class DoubleQPLayer(TabularRLAgent, Player):
         else:
             self.value_update(state, action, new_state, reward)
 
-            self.ALPHA = self.adjust_learning_rate(self.ALPHA, self.DECAY, done)
+            self.ALPHA = self.adjust_learning_rate(alpha=self.ALPHA, decay=self.DECAY, done=done,
+                                                   min_alpha=self.min_alpha)
 
     def best_action(self, values, state):
         best_value = -1
@@ -268,7 +270,7 @@ class DoubleQPLayer(TabularRLAgent, Player):
 
 
 class NStepQAgent(Player, TabularRLAgent):
-    def __init__(self, N, name="NStepQ", gamma=.9, alpha=.1, epsilon=.05):
+    def __init__(self, N=2, name="NStepQ", gamma=.9, alpha=.1, epsilon=.05, min_alpha=.0001):
 
         #### N step Boostrapping agent that performs Q-Learning updates using partial returns consisting of N steps
 
@@ -281,7 +283,7 @@ class NStepQAgent(Player, TabularRLAgent):
         self.states = []
 
         Player.__init__(self, name=name)
-        TabularRLAgent.__init__(self, alpha=alpha, gamma=gamma, epsilon=epsilon)
+        TabularRLAgent.__init__(self, alpha=alpha, gamma=gamma, epsilon=epsilon, min_alpha=min_alpha)
 
     def value_update(self, state, action, new_state, reward, done=0):
 
@@ -320,7 +322,8 @@ class NStepQAgent(Player, TabularRLAgent):
             ####### Update our lookup table of Q-values using the N-step return that we just computed (Gt)
             self.values[(s, a)] = self.values[(s, a)] + self.ALPHA * (Gt - self.values[(s, a)])
 
-            self.ALPHA = self.adjust_learning_rate(self.ALPHA, self.DECAY, done)
+            self.ALPHA = self.adjust_learning_rate(alpha=self.ALPHA, decay=self.DECAY, done=done,
+                                                   min_alpha=self.min_alpha)
 
     def best_action(self, state):
         best_value = -1
@@ -370,10 +373,10 @@ class NStepQAgent(Player, TabularRLAgent):
 ## This agent uses both N-step returns and Double Learning
 ### Theoretical decrease in bias comes from taking N-step return and Double Learning
 class NStepDoubleQAgent(Player, TabularRLAgent):
-    def __init__(self, gamma=.9, alpha=.1, N=2, name="NStepDouble", epsilon=.05):
+    def __init__(self, gamma=.9, alpha=.1, N=2, name="NStepDouble", epsilon=.05, min_alpha=.0001):
 
         Player.__init__(self, name=name)
-        TabularRLAgent.__init__(self, alpha=alpha, gamma=gamma, epsilon=epsilon)
+        TabularRLAgent.__init__(self, alpha=alpha, gamma=gamma, epsilon=epsilon, min_alpha=min_alpha)
 
         self.N = N
         self.v2 = collections.defaultdict(float)
@@ -428,7 +431,8 @@ class NStepDoubleQAgent(Player, TabularRLAgent):
             else:
                 self.value_update(state, action, new_state, reward, done)
 
-            self.ALPHA = self.adjust_learning_rate(self.ALPHA, self.DECAY, done)
+            self.ALPHA = self.adjust_learning_rate(alpha=self.ALPHA, decay=self.DECAY, done=done,
+                                                   min_alpha=self.min_alpha)
 
     def executeaction(self):
         Z = random.uniform(0, 1)
