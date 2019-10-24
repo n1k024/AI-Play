@@ -150,7 +150,7 @@ class QPlayer(Player, TabularRLAgent):
 
         prev_val = self.values[(state, action)]
 
-        _, action_val = self.bestactionandvalue(new_state)
+        action_val, _ = self.bestactionandvalue(new_state)
 
         self.values[(state, action)] = prev_val + self.ALPHA * (reward + (self.GAMMA * action_val - prev_val))
 
