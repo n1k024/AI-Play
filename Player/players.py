@@ -105,16 +105,16 @@ class HumanPlayer(Player):
         """
         action = input("Select an action to execute ")
 
+        a = -1
+
         if str.isdigit(action):
 
-            action = int(action)
-            self.action = action
+            a = int(action)
+            self.action = a
         else:
             self.executeaction()
 
-        print(type(action))
-
-        return action
+        return a
 
 
 class QPlayer(Player, TabularRLAgent):
