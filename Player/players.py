@@ -8,6 +8,8 @@ import os
 
 import pickle
 
+import math
+
 
 class Player(ABC):
     def __init__(self, name):
@@ -26,7 +28,8 @@ class Player(ABC):
 
 
 class TabularRLAgent(ABC):
-    def __init__(self, alpha=.1, gamma=.9, epsilon=.05, decay=.99, min_alpha=.0001, auto_alpha=False):
+    def __init__(self, alpha=.1, gamma=.9, epsilon=.05, decay=.99, min_alpha=.0001, auto_alpha=False,
+                 entropy_augment=False):
         self.values = collections.defaultdict(float)
         self.state = ""
         self.new_state = ""
@@ -37,8 +40,9 @@ class TabularRLAgent(ABC):
         self.DECAY = decay
         self.min_alpha = min_alpha
         self.auto_alpha = auto_alpha
+        self.entropy_augment = entropy_augment
 
-        if self.auto_alpha:
+        if self.auto_alpha or self.entropy_augment:
             ### Used to learn probabilities of transitions
             self.state_counts = collections.defaultdict(float)
             self.transit_count = 0
@@ -57,13 +61,18 @@ class TabularRLAgent(ABC):
     def value_update(self, state, action, new_state, reward, done=0):
         pass
 
-    def auto_alpha_probability(self, state_counts, state, transit_count):
+    def probability_calc(self, state_counts, state, transit_count):
         state_counts[state] += 1
         transit_count += 1
-
         #### We learn a probability of the transition over time
         alpha = state_counts[state] / transit_count
         return alpha
+
+        #### This function calcuates the entropy of being in a given state or how uncertain an agent is
+
+    def entropy_calc(self, probability):
+        entropy = - (probability * math.log2(probability))
+        return entropy
 
     def load(self):
         pass
@@ -132,12 +141,13 @@ class HumanPlayer(Player):
 
 
 class QPlayer(Player, TabularRLAgent):
-    def __init__(self, alpha=.1, name="QPlayer", gamma=.9, epsilon=.05, min_alpha=.0001, auto_alpha=False):
+    def __init__(self, alpha=.1, name="QPlayer", gamma=.9, epsilon=.05, min_alpha=.0001, auto_alpha=False,
+                 entropy_augment=False):
 
         Player.__init__(self, name=name)
 
         TabularRLAgent.__init__(self, alpha=alpha, gamma=gamma, epsilon=epsilon, min_alpha=min_alpha,
-                                auto_alpha=auto_alpha)
+                                auto_alpha=auto_alpha, entropy_augment=entropy_augment)
 
     def bestactionandvalue(self, state):
         switch = 1
@@ -165,20 +175,24 @@ class QPlayer(Player, TabularRLAgent):
 
         prev_val = self.values[(state, action)]
 
+        entropy = 0
+
+        if self.entropy_augment:
+            probability = self.probability_calc(state_counts=self.state_counts, state=new_state,
+                                                transit_count=self.transit_count)
+            entropy = self.entropy_calc(probability)
+
         action_val, _ = self.bestactionandvalue(new_state)
 
-        self.values[(state, action)] = prev_val + self.ALPHA * (reward + (self.GAMMA * action_val - prev_val))
+        self.values[(state, action)] = prev_val + self.ALPHA * (entropy + reward + (self.GAMMA * action_val - prev_val))
 
         if self.auto_alpha:
-            self.ALPHA = self.auto_alpha_probability(state_counts=self.state_counts, state=new_state,
-                                                     transit_count=self.transit_count)
+            self.ALPHA = self.probability_calc(state_counts=self.state_counts, state=new_state,
+                                               transit_count=self.transit_count)
 
         else:
             self.ALPHA = self.adjust_learning_rate(alpha=self.ALPHA, decay=self.DECAY, done=done,
                                                    min_alpha=self.min_alpha)
-
-
-
 
     def executeaction(self):
         ## compute best action in a given state
