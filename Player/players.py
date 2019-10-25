@@ -411,10 +411,12 @@ class NStepQAgent(Player, TabularRLAgent):
 ## This agent uses both N-step returns and Double Learning
 ### Theoretical decrease in bias comes from taking N-step return and Double Learning
 class NStepDoubleQAgent(Player, TabularRLAgent):
-    def __init__(self, gamma=.9, alpha=.1, N=2, name="NStepDouble", epsilon=.05, min_alpha=.0001):
+    def __init__(self, gamma=.9, alpha=.1, N=2, name="NStepDouble", epsilon=.05, min_alpha=.0001,
+                 entropy_augment=False):
 
         Player.__init__(self, name=name)
-        TabularRLAgent.__init__(self, alpha=alpha, gamma=gamma, epsilon=epsilon, min_alpha=min_alpha)
+        TabularRLAgent.__init__(self, alpha=alpha, gamma=gamma, epsilon=epsilon, min_alpha=min_alpha,
+                                entropy_augment=entropy_augment)
 
         self.N = N
         self.v2 = collections.defaultdict(float)
@@ -452,6 +454,13 @@ class NStepDoubleQAgent(Player, TabularRLAgent):
             s = self.states.pop()
             a = self.actions.pop()
 
+            entropy = 0
+
+            if self.entropy_augment:
+                probability = self.probability_calc(state_counts=self.state_counts, transit_count=self.transit_count,
+                                                    state=new_state)
+                entropy = self.entropy_calc(probability)
+
             Z = random.uniform(0, 1)
 
             ### Updating of Q-values occurs here notice we are using two lookup table here, we basically flip a coin to determine which table we will update
@@ -459,12 +468,12 @@ class NStepDoubleQAgent(Player, TabularRLAgent):
             if Z > .5:
 
                 self.values[(s, a)] = self.values[(s, a)] + self.ALPHA \
-                                      * (reward + (
+                                      * (entropy + reward + (
                         Gt - self.values[(s, a)]))
             elif Z < .5:
 
                 self.v2[(s, a)] = self.v2[(s, a)] + self.ALPHA \
-                                  * (reward + (
+                                  * (entropy + reward + (
                         Gt - self.v2[(s, a)]))
             else:
                 self.value_update(state, action, new_state, reward, done)
