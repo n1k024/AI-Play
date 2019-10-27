@@ -334,6 +334,9 @@ class TicTacToe(Twoplayerenv):
         winner = self.directional_search(player=player, board=board, bound_x=board.shape[1], bound_y=board.shape[0],
                                          depth=2)
 
+        if player.piece == board[2][0] and player.piece == board[1][1] and player.piece == board[0][2]:
+            winner = 1
+
         ## Terminate this function  if we determine the inputted is the winner as a result of their last action
 
         ## Inspect the entire state space to see if all the spaces are filled
@@ -373,8 +376,14 @@ class TicTacToe(Twoplayerenv):
 
         board = board.reshape(3, 3)
 
+        winner = 0
+
+        #### Fix to get to recognize diagonal from other direction
+        if player.piece == board[2][0] and player.piece == board[1][1] and player.piece == board[0][2]:
+            winner = 1
+
         return self.directional_search(board=board, player=player, bound_x=board.shape[1], bound_y=board.shape[0],
-                                       depth=2)
+                                       depth=2) or winner
 
 
 ############## Connect4 ENVIRONMENT !!!
