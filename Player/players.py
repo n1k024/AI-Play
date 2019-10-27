@@ -47,6 +47,9 @@ class TabularRLAgent(ABC):
             self.state_counts = collections.defaultdict(float)
             self.transit_count = 0
 
+            if entropy_augment:
+                self.EPSILON = 0
+
         if epsilon < 0 or epsilon > 1:
             self.EPSILON = .05
 
