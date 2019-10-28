@@ -61,7 +61,8 @@ class TabularRLAgent(ABC):
         self.load()
 
     @abstractmethod
-    def value_update(self, state, action, new_state, reward, done=0):
+    def value_update(self, state, action, new_state, reward, done=0, action2=None):
+
         pass
 
     def probability_calc(self, state_counts, state, transit_count):
@@ -174,7 +175,7 @@ class QPlayer(Player, TabularRLAgent):
 
         return best_value, best_action
 
-    def value_update(self, state, action, new_state, reward=0, done=0):
+    def value_update(self, state, action, new_state, reward=0, done=0, action2=None):
 
         prev_val = self.values[(state, action)]
 
@@ -228,7 +229,7 @@ class DoubleQPLayer(TabularRLAgent, Player):
 
         TabularRLAgent.__init__(self, alpha=alpha, gamma=gamma, epsilon=epsilon, min_alpha=min_alpha)
 
-    def value_update(self, state, action, new_state, reward=0, done=0):
+    def value_update(self, state, action, new_state, reward=0, done=0, action2=None):
 
         Z = random.uniform(0, 1)
 
@@ -326,7 +327,7 @@ class NStepQAgent(Player, TabularRLAgent):
         Player.__init__(self, name=name)
         TabularRLAgent.__init__(self, alpha=alpha, gamma=gamma, epsilon=epsilon, min_alpha=min_alpha)
 
-    def value_update(self, state, action, new_state, reward, done=0):
+    def value_update(self, state, action, new_state, reward, done=0, action2=None):
 
         if not self.r:
             self.r.append(reward)
@@ -428,7 +429,7 @@ class NStepDoubleQAgent(Player, TabularRLAgent):
         self.actions = []
         self.states = []
 
-    def value_update(self, state, action, new_state, reward=0, done=0):
+    def value_update(self, state, action, new_state, reward=0, done=0, action2=None):
 
         if not self.r:
             self.r.append(reward)
@@ -535,3 +536,51 @@ class NStepDoubleQAgent(Player, TabularRLAgent):
         if os.path.isfile("values/" + self.name + '2.pkl'):
             with open('values/' + self.name + '2.pkl', 'rb') as f:
                 self.v2 = pickle.load(f)
+
+
+##### SARSA is a  model free TD method that follows a policy PI
+### SARSA uses Q-values to determine reward estimations Q(s,a)
+class SARSAgent(Player, TabularRLAgent):
+    def __init__(self, name="SARSA", gamma=.9, epsilon=.05, alpha=.1, auto_alpha=False, entropy_augmentation=False,
+                 min_alpha=.0001):
+        self.action2 = None
+
+        Player.__init__(self, name=name)
+        TabularRLAgent.__init__(self, alpha=alpha, gamma=gamma, epsilon=epsilon, min_alpha=min_alpha,
+                                auto_alpha=auto_alpha, entropy_augment=entropy_augmentation)
+
+    def value_update(self, state, action, new_state, reward, done=0, action2=None):
+        if not action == None and not action2 == None:
+            print("Policy update")
+            ### Perform policy update
+            target = reward + self.GAMMA * self.values[new_state, action2]
+            predicted = self.values[state, action]
+            self.values[state, action] = self.values[state, action] + self.ALPHA * (target - predicted)
+
+            self.action2 = self.action
+
+    def executeaction(self):
+        a = self.bestaction(self.state)
+        a = self.epsilon_greedy_action_selection(a, self.EPSILON)
+
+        if self.action is None and self.action2 is None:
+            self.action = a
+        elif not self.action is None:
+            self.action2 = a
+        elif not self.action is None and not self.action2 is None:
+            self.action2 = None
+            self.action = a
+
+        print("Return type", type(a))
+
+        return a
+
+    def bestaction(self, state):
+        best_action = -1
+        best_val = -1000
+
+        for action in range(10):
+            if best_val is None or best_val > self.values[(state, action)]:
+                best_action = action
+                best_val = self.values[(state, action)]
+        return best_action
