@@ -261,10 +261,12 @@ class Twoplayerenv(ABC):
             if player1.name in self.bot_names:
 
                 player1.set_state(self.state)
+
                 if player1.name == 'SARSA':
-                    player1.value_update(player1.state, player1.new_state, player1.action, action2=player2.action2)
+                    player1.value_update(player1.state, player1.new_state, player1.action, action2=player1.action2,
+                                         reward=0)
                 else:
-                    player1.value_update(player1.state, player1.new_state, player1.action, action2=None)
+                    player1.value_update(player1.state, player1.new_state, player1.action, action2=None, reward=0)
 
                 player1.set_next_state(player1.state)
 
@@ -306,8 +308,9 @@ class TicTacToe(Twoplayerenv):
 
     def islegal_action(self, a):
 
-        if a < 0 or a > 8:
+        if a is None or a < 0 or a > 8:
             return False
+
         y, x = self.convert_point(bound_x=3, a=a)
 
         if not self.state[y][x] == "":
@@ -320,12 +323,16 @@ class TicTacToe(Twoplayerenv):
         pos_x = -1
         pos_y = 0
 
+        if a == 0:
+            return 0, 0
+
         for x in range(9):
 
             pos_x = pos_x + 1
 
             if x == a:
                 return pos_y, pos_x
+
 
             if pos_x == bound_x - 1:
                 pos_x = -1
@@ -347,6 +354,9 @@ class TicTacToe(Twoplayerenv):
             winner = 1
 
         if player.piece == board[2][0] and player.piece == board[1][1] and player.piece == board[0][1]:
+            winner = 0
+
+        if player.piece == board[2][0] and player.piece == board[1][1] and player.piece == board[0][0]:
             winner = 0
 
         ## Terminate this function  if we determine the inputted is the winner as a result of their last action
@@ -374,7 +384,7 @@ class TicTacToe(Twoplayerenv):
 
         ## Player applies an action using their game onto the environment
 
-        action = int(action)
+        # action = int(action)
 
         y, x = self.convert_point(a=action, bound_x=3)
 
