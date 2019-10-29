@@ -12,7 +12,7 @@ class Twoplayerenv(ABC):
 
         self.legal_action = False
 
-        self.bot_names = ["QPlayer", "DbQPlayer", "NStepDouble", "NStepQ"]
+        self.bot_names = ["QPlayer", "DbQPlayer", "NStepDouble", "NStepQ", "SARSA"]
 
         self.episodes = episodes
 
@@ -214,13 +214,16 @@ class Twoplayerenv(ABC):
         while True:
 
             self.legal_action = False
+            a = None
 
             while not self.legal_action:
                 a = player1.executeaction()
+                if type(a) is str:
+                    a = int(a)
 
-                self.legal_action = self.islegal_action(int(a))
+                self.legal_action = self.islegal_action(a)
 
-            self.update_env(action=player1.action, player=player1)
+            self.update_env(action=a, player=player1)
 
             if self.isgameover(player=player1):
                 break
@@ -229,7 +232,12 @@ class Twoplayerenv(ABC):
 
                 player2.set_next_state(self.state)
 
-                player2.value_update(state=player2.state, new_state=player2.new_state, action=player2.action)
+                if player2.name == "SARSA":
+                    player2.value_update(state=player2.state, new_state=player2.new_state, action=player2.action,
+                                         action2=player2.action2, reward=0)
+                else:
+                    player2.value_update(state=player2.state, new_state=player2.new_state, action=player2.action,
+                                         action2=None, reward=0)
 
                 player2.set_state(player2.new_state)
             else:
@@ -239,7 +247,9 @@ class Twoplayerenv(ABC):
 
             while not self.legal_action:
                 a = player2.executeaction()
-                self.legal_action = self.islegal_action(int(a))
+                if type(a) is str:
+                    a = int(a)
+                self.legal_action = self.islegal_action(a)
 
             ## update our environment after executing actions onto it
             self.update_env(player2.action, player2)
@@ -251,12 +261,12 @@ class Twoplayerenv(ABC):
             if player1.name in self.bot_names:
 
                 player1.set_state(self.state)
-
-                player1.value_update(player1.state, player1.new_state, player1.action)
+                if player1.name == 'SARSA':
+                    player1.value_update(player1.state, player1.new_state, player1.action, action2=player2.action2)
+                else:
+                    player1.value_update(player1.state, player1.new_state, player1.action, action2=None)
 
                 player1.set_next_state(player1.state)
-
-
 
             else:
                 ## Display the current state of the environment for  our human player
@@ -296,12 +306,9 @@ class TicTacToe(Twoplayerenv):
 
     def islegal_action(self, a):
 
-        a = int(a)
-
         if a < 0 or a > 8:
             return False
-
-        y, x = self.convert_point(bound_x=3, a=int(a))
+        y, x = self.convert_point(bound_x=3, a=a)
 
         if not self.state[y][x] == "":
             return False
@@ -334,8 +341,13 @@ class TicTacToe(Twoplayerenv):
         winner = self.directional_search(player=player, board=board, bound_x=board.shape[1], bound_y=board.shape[0],
                                          depth=2)
 
+        ####### Hard coded fixing of directional search so the environment will terminate
+
         if player.piece == board[2][0] and player.piece == board[1][1] and player.piece == board[0][2]:
             winner = 1
+
+        if player.piece == board[2][0] and player.piece == board[1][1] and player.piece == board[0][1]:
+            winner = 0
 
         ## Terminate this function  if we determine the inputted is the winner as a result of their last action
 
