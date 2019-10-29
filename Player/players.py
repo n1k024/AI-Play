@@ -574,8 +574,6 @@ class SARSAgent(Player, TabularRLAgent):
             self.action2 = None
             self.action = a
 
-        self.action2 = self.action
-
         return a
 
     def bestactionandvalue(self, state):
