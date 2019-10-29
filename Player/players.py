@@ -121,6 +121,44 @@ class TabularRLAgent(ABC):
         return a
 
 
+#### Abstract class for construction of agents that will learn Q-values
+class QLearner(TabularRLAgent, ABC):
+    def __init__(self, alpha=.1):
+        TabularRLAgent.__init__(self, alpha=alpha)
+
+    def max_value_action(self, values, state):
+        best_value = -1
+        best_action = 0
+        switch = 1
+
+        for action in range(10):
+            if values[(state, action)] > best_value:
+                best_value = values[(state, action)]
+
+                best_action = action
+
+        if best_value != 0:
+            switch = 0
+        elif best_value == 0:
+            switch = 1
+
+        if switch:
+            best_action = random.uniform(0, 10)
+
+        return best_value, best_action
+
+
+class TDLearner(QLearner, ABC):
+    def __init__(self, alpha=.1):
+        QLearner.__init__(self, alpha=alpha)
+
+    def TD_update(self, target, predicted, alpha, state, action, values):
+        td_error = target - predicted
+        values[(state, action)] = values[(state, action)] + alpha * td_error
+
+        return values[(state, action)]
+
+
 class HumanPlayer(Player):
     def __init__(self):
 
