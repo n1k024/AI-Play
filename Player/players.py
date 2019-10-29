@@ -41,6 +41,7 @@ class TabularRLAgent(ABC):
         self.min_alpha = min_alpha
         self.auto_alpha = auto_alpha
         self.entropy_augment = entropy_augment
+        self.action = None
 
         if self.auto_alpha or self.entropy_augment:
             ### Used to learn probabilities of transitions
@@ -58,6 +59,7 @@ class TabularRLAgent(ABC):
 
         if gamma < 0 or gamma > 1:
             self.GAMMA = .9
+
         self.load()
 
     @abstractmethod
@@ -550,8 +552,7 @@ class SARSAgent(Player, TabularRLAgent):
                                 auto_alpha=auto_alpha, entropy_augment=entropy_augmentation)
 
     def value_update(self, state, action, new_state, reward, done=0, action2=None):
-        if not action == None and not action2 == None:
-            print("Policy update")
+        if not action == None and not action2 is None:
             ### Perform policy update
             target = reward + self.GAMMA * self.values[new_state, action2]
             predicted = self.values[state, action]
@@ -560,8 +561,10 @@ class SARSAgent(Player, TabularRLAgent):
             self.action2 = self.action
 
     def executeaction(self):
-        a = self.bestaction(self.state)
-        a = self.epsilon_greedy_action_selection(a, self.EPSILON)
+        _, a = self.bestactionandvalue(self.state)
+        a = self.epsilon_greedy_action_selection(int(a), self.EPSILON)
+
+        a = int(a)
 
         if self.action is None and self.action2 is None:
             self.action = a
@@ -571,16 +574,29 @@ class SARSAgent(Player, TabularRLAgent):
             self.action2 = None
             self.action = a
 
-        print("Return type", type(a))
+        self.action2 = self.action
 
         return a
 
-    def bestaction(self, state):
+    def bestactionandvalue(self, state):
+        switch = 1
+        best_value = None
         best_action = -1
-        best_val = -1000
 
         for action in range(10):
-            if best_val is None or best_val > self.values[(state, action)]:
+
+            action_value = self.values[(state, action)]
+
+            if best_value is None or best_value < action_value:
+                best_value = action_value
                 best_action = action
-                best_val = self.values[(state, action)]
-        return best_action
+            if best_value != action_value:
+                switch = 0
+
+        if best_value == 0:
+            switch = 1
+
+        if switch:
+            best_action = random.uniform(0, 10)
+
+        return best_value, best_action
