@@ -598,3 +598,13 @@ class SARSAgent(Player, TabularRLAgent):
             best_action = random.uniform(0, 10)
 
         return best_value, best_action
+
+    def save(self):
+        with open('values/' + self.name + '.pkl', 'wb') as f:
+            pickle.dump(self.values, f, pickle.HIGHEST_PROTOCOL)
+            f.close()
+
+    def load(self):
+        if os.path.isfile("values/" + self.name + '.pkl'):
+            with open('values/' + self.name + '.pkl', 'rb') as f:
+                self.values = pickle.load(f)
