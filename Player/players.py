@@ -120,6 +120,15 @@ class TabularRLAgent(ABC):
         ### return epsilon greedy action selection
         return a
 
+    def eval_performance(self, Q):
+        sum_ = 0
+        count = 0
+        for key in Q:
+            sum_ += Q[key]
+            count += 1
+
+        print("Average Value for agent", sum_ / count)
+
 
 #### Abstract class for construction of agents that will learn Q-values
 class QLearner(TabularRLAgent, ABC):
