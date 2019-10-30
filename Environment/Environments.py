@@ -359,6 +359,10 @@ class TicTacToe(Twoplayerenv):
         if player.piece == board[2][0] and player.piece == board[1][1] and player.piece == board[0][0]:
             winner = 0
 
+        if player.piece == board[2][0] and player.piece == board[1][1] and player.piece == board[2][2]:
+            winner = 0
+
+
         ## Terminate this function  if we determine the inputted is the winner as a result of their last action
 
         ## Inspect the entire state space to see if all the spaces are filled
@@ -404,6 +408,14 @@ class TicTacToe(Twoplayerenv):
         if player.piece == board[2][0] and player.piece == board[1][1] and player.piece == board[0][2]:
             winner = 1
 
+        if player.piece == board[2][0] and player.piece == board[1][1] and player.piece == board[0][1]:
+            winner = 0
+
+        if player.piece == board[2][0] and player.piece == board[1][1] and player.piece == board[0][0]:
+            winner = 0
+
+        if player.piece == board[2][0] and player.piece == board[1][1] and player.piece == board[2][2]:
+            winner = 0
         return self.directional_search(board=board, player=player, bound_x=board.shape[1], bound_y=board.shape[0],
                                        depth=2) or winner
 
