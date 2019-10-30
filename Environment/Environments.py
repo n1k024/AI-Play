@@ -147,9 +147,9 @@ class Twoplayerenv(ABC):
 
             if player1.name in self.bot_names:
 
-                player1.set_state(player1.state)
+                player1.set_state(self.state)
 
-                player1.set_next_state(self.state)
+                player1.set_next_state(player1.state)
 
                 player1.value_update(state=player1.state, new_state=player1.new_state, action=player1.action, reward=1,
                                      done=1)
@@ -260,7 +260,7 @@ class Twoplayerenv(ABC):
 
             if player1.name in self.bot_names:
 
-                player1.set_state(self.state)
+                player1.set_next_state(self.state)
 
                 if player1.name == 'SARSA':
                     player1.value_update(player1.state, player1.new_state, player1.action, action2=player1.action2,
@@ -268,7 +268,7 @@ class Twoplayerenv(ABC):
                 else:
                     player1.value_update(player1.state, player1.new_state, player1.action, action2=None, reward=0)
 
-                player1.set_next_state(player1.state)
+                player1.set_state(player1.new_state)
 
             else:
                 ## Display the current state of the environment for  our human player
