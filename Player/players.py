@@ -585,13 +585,14 @@ class SARSAgent(Player, TabularRLAgent):
                                 auto_alpha=auto_alpha, entropy_augment=entropy_augmentation)
 
     def value_update(self, state, action, new_state, reward, done=0, action2=None):
-        if not action == None and not action2 is None:
+        if not action is None and not action2 is None:
             ### Perform policy update
             target = reward + self.GAMMA * self.values[new_state, action2]
             predicted = self.values[state, action]
             self.values[state, action] = self.values[state, action] + self.ALPHA * (target - predicted)
 
-            self.action2 = self.action
+            self.action = self.action2
+            self.action2 = None
 
     def executeaction(self):
         _, a = self.bestactionandvalue(self.state)
