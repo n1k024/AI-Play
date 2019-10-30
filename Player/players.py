@@ -67,12 +67,12 @@ class TabularRLAgent(ABC):
 
         pass
 
-    def probability_calc(self, state_counts, state, transit_count):
-        state_counts[state] += 1
-        transit_count += 1
+    def probability_calc(self, state):
+        self.state_counts[state] += 1
+        self.transit_count += 1
         #### We learn a probability of the transition over time
-        alpha = state_counts[state] / transit_count
-        return alpha
+        p = self.state_counts[state] / self.transit_count
+        return p
 
         #### This function calcuates the entropy of being in a given state or how uncertain an agent is
 
@@ -222,8 +222,7 @@ class QPlayer(Player, TabularRLAgent):
         entropy = 0
 
         if self.entropy_augment:
-            probability = self.probability_calc(state_counts=self.state_counts, state=new_state,
-                                                transit_count=self.transit_count)
+            probability = self.probability_calc(state=new_state)
             entropy = self.entropy_calc(probability)
 
         action_val, _ = self.bestactionandvalue(new_state)
@@ -231,8 +230,7 @@ class QPlayer(Player, TabularRLAgent):
         self.values[(state, action)] = prev_val + self.ALPHA * (entropy + reward + (self.GAMMA * action_val - prev_val))
 
         if self.auto_alpha:
-            self.ALPHA = self.probability_calc(state_counts=self.state_counts, state=new_state,
-                                               transit_count=self.transit_count)
+            self.ALPHA = self.probability_calc(state=new_state)
 
         else:
             self.ALPHA = self.adjust_learning_rate(alpha=self.ALPHA, decay=self.DECAY, done=done,
@@ -390,8 +388,6 @@ class NStepQAgent(Player, TabularRLAgent):
 
             while not len(self.r) == 1:
                 br = self.r.pop()
-                ba = self.actions.pop()
-                bs = self.states.pop()
 
                 ### Compute the N-step return sum of future discounted reward
                 Gt = br + (self.GAMMA ** k) * Gt
@@ -501,8 +497,7 @@ class NStepDoubleQAgent(Player, TabularRLAgent):
             entropy = 0
 
             if self.entropy_augment:
-                probability = self.probability_calc(state_counts=self.state_counts, transit_count=self.transit_count,
-                                                    state=new_state)
+                probability = self.probability_calc(state=new_state)
                 entropy = self.entropy_calc(probability)
 
             Z = random.uniform(0, 1)
