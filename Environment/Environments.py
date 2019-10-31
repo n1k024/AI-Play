@@ -31,9 +31,15 @@ class Twoplayerenv(ABC):
 
             self.display_state(self.state)
 
-        print("Player1's Record ", player1.record[0], "-", player1.record[1], "-", player1.record[2])
+        print(player1.name, "'s Record ", player1.record[0], "-", player1.record[1], "-", player1.record[2])
 
-        print("Player2's record ", player2.record[0], "-", player2.record[1], "-", player2.record[2])
+        if player1.name in self.bot_names:
+            player1.eval_performance(player1.values)
+
+        print(player2.name, "'s record ", player2.record[0], "-", player2.record[1], "-", player2.record[2])
+
+        if player2.name in self.bot_names:
+            player2.eval_performance(player2.values)
 
     @abstractmethod
     def reset_env(self):
@@ -150,9 +156,14 @@ class Twoplayerenv(ABC):
                 player1.set_state(self.state)
 
                 player1.set_next_state(player1.state)
-
-                player1.value_update(state=player1.state, new_state=player1.new_state, action=player1.action, reward=1,
-                                     done=1)
+                if player1.name == 'SARSA':
+                    player1.value_update(state=player1.state, new_state=player1.new_state, action=player1.action,
+                                         reward=1,
+                                         done=1, action2=player1.action2)
+                else:
+                    player1.value_update(state=player1.state, new_state=player1.new_state, action=player1.action,
+                                         reward=1,
+                                         done=1)
 
                 if player2.name in self.bot_names:
                     player2.set_state(player2.state)
@@ -176,12 +187,19 @@ class Twoplayerenv(ABC):
                                      reward=1, done=1)
 
             if player1.name in self.bot_names:
-                player1.set_state(player1.state)
-
+                player1.set_state(player1.new_state)
                 player1.set_next_state(self.state)
 
-                player1.value_update(state=player1.state, new_state=player1.new_state, reward=-1,
-                                     action=int(player1.action), done=1)
+                if player1.name == 'SARSA':
+                    player1.value_update(state=player1.state, new_state=player1.new_state, action=player1.action,
+                                         reward=-1,
+                                         done=1, action2=player1.action2)
+                else:
+                    player1.value_update(state=player1.state, new_state=player1.new_state, action=player1.action,
+                                         reward=-1,
+                                         done=1)
+
+
 
         else:
             print("TIE !!!")
@@ -191,15 +209,30 @@ class Twoplayerenv(ABC):
 
             if player1.name in self.bot_names:
                 player1.set_state(player1.new_state)
+                player1.set_next_state(self.state)
 
-                player1.value_update(state=player1.state, new_state=player1.new_state, reward=0, action=player1.action,
-                                     done=1)
+                if player1.name == 'SARSA':
+                    player1.value_update(state=player1.state, new_state=player1.new_state, reward=0,
+                                         action=player1.action,
+                                         done=1, action2=player1.action2)
+                else:
+                    player1.value_update(state=player1.state, new_state=player1.new_state, reward=0,
+                                         action=player1.action,
+                                         done=1, action2=None)
 
             if player2.name in self.bot_names:
-                player2.set_next_state(player2.state)
+                player2.set_state(player2.new_state)
+                player2.set_next_state(self.state)
 
-                player2.value_update(state=player2.state, new_state=player2.new_state, reward=0,
-                                     action=int(player2.action), done=1)
+                if player2.name == 'SARSA':
+                    player2.value_update(state=player2.state, new_state=player2.new_state, reward=0,
+                                         action=player2.action,
+                                         done=1, action2=player2.action2)
+                else:
+                    player2.value_update(state=player2.state, new_state=player2.new_state, reward=0,
+                                         action=player2.action,
+                                         done=1, action2=None)
+
 
     @abstractmethod
     def islegal_action(self, a):
@@ -333,7 +366,6 @@ class TicTacToe(Twoplayerenv):
             if x == a:
                 return pos_y, pos_x
 
-
             if pos_x == bound_x - 1:
                 pos_x = -1
                 pos_y = pos_y + 1
@@ -361,7 +393,6 @@ class TicTacToe(Twoplayerenv):
 
         if player.piece == board[2][0] and player.piece == board[1][1] and player.piece == board[2][2]:
             winner = 0
-
 
         ## Terminate this function  if we determine the inputted is the winner as a result of their last action
 
