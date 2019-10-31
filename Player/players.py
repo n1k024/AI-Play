@@ -335,7 +335,7 @@ class DoubleQPLayer(TabularRLAgent, Player):
             ## If there are ties at which it is .5 we call the executeaction again
             self.executeaction()
 
-        self.action = self.epsilon_greedy_action_selection(action=self.action, epsilon=self.EPSILON)
+        self.action = int(self.epsilon_greedy_action_selection(action=self.action, epsilon=self.EPSILON))
 
         return self.action
 
