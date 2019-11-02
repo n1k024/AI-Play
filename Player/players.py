@@ -120,14 +120,26 @@ class TabularRLAgent(ABC):
         ### return epsilon greedy action selection
         return a
 
-    def eval_performance(self, Q):
+    def performance_report(self, player):
         sum_ = 0
         count = 0
+        Q = player.values
         for key in Q:
             sum_ += Q[key]
             count += 1
 
         print("Average Value for agent", sum_ / count)
+        expected_q = sum_ / count
+
+        if os.path.isfile('Results/' + player.name + "perform" + '.txt'):
+            f = open('Results/' + player.name + "perform" + '.txt', 'a+')
+            f.write('Exepected Q ' + str(expected_q))
+            f.close()
+
+        else:
+            f = open('Results/' + player.name + "perform" + '.txt', 'w+')
+            f.write('Exepected Q ' + str(expected_q))
+            f.close()
 
 
 #### Abstract class for construction of agents that will learn Q-values
@@ -238,12 +250,17 @@ class QPlayer(Player, TabularRLAgent):
 
         self.values[(state, action)] = prev_val + self.ALPHA * (entropy + reward + (self.GAMMA * action_val - prev_val))
 
+        if done:
+            self.performance_report(self)
+
+
+
         if self.auto_alpha:
             self.ALPHA = self.probability_calc(state=new_state)
 
         else:
-            self.ALPHA = self.adjust_learning_rate(alpha=self.ALPHA, decay=self.DECAY, done=done,
-                                                   min_alpha=self.min_alpha)
+            self.ALPHA = self.adjust_learning_rate(alpha=self.ALPHA, decay=self.DECAY, done=done)
+
 
     def executeaction(self):
         ## compute best action in a given state
@@ -300,6 +317,9 @@ class DoubleQPLayer(TabularRLAgent, Player):
 
             self.ALPHA = self.adjust_learning_rate(alpha=self.ALPHA, decay=self.DECAY, done=done,
                                                    min_alpha=self.min_alpha)
+
+        if done:
+            self.performance_report(self)
 
     def best_action(self, values, state):
         best_value = -1
@@ -411,6 +431,9 @@ class NStepQAgent(Player, TabularRLAgent):
 
             self.ALPHA = self.adjust_learning_rate(alpha=self.ALPHA, decay=self.DECAY, done=done,
                                                    min_alpha=self.min_alpha)
+
+            if done:
+                self.performance_report(self)
 
     def best_action(self, state):
         best_value = -1
@@ -529,6 +552,8 @@ class NStepDoubleQAgent(Player, TabularRLAgent):
             self.ALPHA = self.adjust_learning_rate(alpha=self.ALPHA, decay=self.DECAY, done=done,
                                                    min_alpha=self.min_alpha)
 
+            self.performance_report(self)
+
     def executeaction(self):
         Z = random.uniform(0, 1)
         if Z > .5:
@@ -602,6 +627,8 @@ class SARSAgent(Player, TabularRLAgent):
 
             self.action = self.action2
             self.action2 = None
+
+            self.performance_report(self)
 
     def executeaction(self):
         _, a = self.bestactionandvalue(self.state)
