@@ -33,13 +33,8 @@ class Twoplayerenv(ABC):
 
         print(player1.name, "'s Record ", player1.record[0], "-", player1.record[1], "-", player1.record[2])
 
-        if player1.name in self.bot_names:
-            player1.eval_performance(player1.values)
-
         print(player2.name, "'s record ", player2.record[0], "-", player2.record[1], "-", player2.record[2])
 
-        if player2.name in self.bot_names:
-            player2.eval_performance(player2.values)
 
     @abstractmethod
     def reset_env(self):
