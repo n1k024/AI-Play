@@ -128,17 +128,16 @@ class TabularRLAgent(ABC):
             sum_ += Q[key]
             count += 1
 
-        print("Average Value for agent", sum_ / count)
         expected_q = sum_ / count
 
         if os.path.isfile('Results/' + player.name + "perform" + '.txt'):
             f = open('Results/' + player.name + "perform" + '.txt', 'a+')
-            f.write('Exepected Q ' + str(expected_q))
+            f.write(str(expected_q) + '\n')
             f.close()
 
         else:
             f = open('Results/' + player.name + "perform" + '.txt', 'w+')
-            f.write('Exepected Q ' + str(expected_q))
+            f.write(str(expected_q) + '\n')
             f.close()
 
 
@@ -551,8 +550,8 @@ class NStepDoubleQAgent(Player, TabularRLAgent):
 
             self.ALPHA = self.adjust_learning_rate(alpha=self.ALPHA, decay=self.DECAY, done=done,
                                                    min_alpha=self.min_alpha)
-
-            self.performance_report(self)
+            if done:
+                self.performance_report(self)
 
     def executeaction(self):
         Z = random.uniform(0, 1)
@@ -628,7 +627,8 @@ class SARSAgent(Player, TabularRLAgent):
             self.action = self.action2
             self.action2 = None
 
-            self.performance_report(self)
+            if done:
+                self.performance_report(self)
 
     def executeaction(self):
         _, a = self.bestactionandvalue(self.state)
