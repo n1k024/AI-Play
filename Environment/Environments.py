@@ -35,7 +35,6 @@ class Twoplayerenv(ABC):
 
         print(player2.name, "'s record ", player2.record[0], "-", player2.record[1], "-", player2.record[2])
 
-
     @abstractmethod
     def reset_env(self):
         pass
@@ -228,7 +227,6 @@ class Twoplayerenv(ABC):
                                          action=player2.action,
                                          done=1, action2=None)
 
-
     @abstractmethod
     def islegal_action(self, a):
         pass
@@ -379,14 +377,20 @@ class TicTacToe(Twoplayerenv):
 
         if player.piece == board[2][0] and player.piece == board[1][1] and player.piece == board[0][2]:
             winner = 1
-
-        if player.piece == board[2][0] and player.piece == board[1][1] and player.piece == board[0][1]:
+        elif player.piece == board[2][0] and player.piece == board[1][1] and player.piece == board[0][1]:
+            winner = 0
+        elif player.piece == board[2][0] and player.piece == board[1][1] and player.piece == board[0][0]:
             winner = 0
 
-        if player.piece == board[2][0] and player.piece == board[1][1] and player.piece == board[0][0]:
+        elif player.piece == board[2][0] and player.piece == board[1][1] and player.piece == board[2][2]:
             winner = 0
-
-        if player.piece == board[2][0] and player.piece == board[1][1] and player.piece == board[2][2]:
+        elif player.piece == board[1][0] and player.piece == board[2][1] and player.piece == board[2][2]:
+            winner = 0
+        elif player.piece == board[0][2] and player.piece == board[1][1] and player.piece == board[2][2]:
+            winner = 0
+        elif player.piece == board[0][0] and player.piece == board[0][1] and player.piece == board[1][0]:
+            winner = 0
+        elif player.piece == board[1][0] and player.piece == board[1][1] and player.piece == board[0][2]:
             winner = 0
 
         ## Terminate this function  if we determine the inputted is the winner as a result of their last action

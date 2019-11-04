@@ -252,14 +252,11 @@ class QPlayer(Player, TabularRLAgent):
         if done:
             self.performance_report(self)
 
-
-
         if self.auto_alpha:
             self.ALPHA = self.probability_calc(state=new_state)
 
         else:
             self.ALPHA = self.adjust_learning_rate(alpha=self.ALPHA, decay=self.DECAY, done=done)
-
 
     def executeaction(self):
         ## compute best action in a given state
@@ -619,16 +616,23 @@ class SARSAgent(Player, TabularRLAgent):
 
     def value_update(self, state, action, new_state, reward, done=0, action2=None):
         if not action is None and not action2 is None:
-            ### Perform policy update
-            target = reward + self.GAMMA * self.values[new_state, action2]
-            predicted = self.values[state, action]
-            self.values[state, action] = self.values[state, action] + self.ALPHA * (target - predicted)
 
-            self.action = self.action2
-            self.action2 = None
+            entropy = 0.0
+            if self.entropy_augment:
+                p = self.probability_calc(self.state)
+                entropy = self.entropy_calc(probability=p)
 
-            if done:
-                self.performance_report(self)
+                target = entropy + reward + self.GAMMA * self.values[new_state, action2]
+                predicted = self.values[state, action]
+
+                ### Perform policy update
+                self.values[state, action] = self.values[state, action] + self.ALPHA * (target - predicted)
+
+                self.action = self.action2
+                self.action2 = None
+
+                if done:
+                    self.performance_report(self)
 
     def executeaction(self):
         _, a = self.bestactionandvalue(self.state)
