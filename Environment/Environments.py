@@ -377,7 +377,7 @@ class TicTacToe(Twoplayerenv):
 
         if player.piece == board[2][0] and player.piece == board[1][1] and player.piece == board[0][2]:
             winner = 1
-            d = 1
+
         elif player.piece == board[2][0] and player.piece == board[1][1] and player.piece == board[0][1] and d:
             winner = 0
         elif player.piece == board[2][0] and player.piece == board[1][1] and player.piece == board[0][0] and d:
@@ -433,8 +433,6 @@ class TicTacToe(Twoplayerenv):
     def update_env(self, action, player):
 
         ## Player applies an action using their game onto the environment
-
-        # action = int(action)
 
         y, x = self.convert_point(a=action, bound_x=3)
 
