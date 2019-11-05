@@ -370,27 +370,43 @@ class TicTacToe(Twoplayerenv):
         board = np.array(self.state).reshape(3, 3)
 
         ## determine if game terminates due to a winner
-        winner = self.directional_search(player=player, board=board, bound_x=board.shape[1], bound_y=board.shape[0],
-                                         depth=2)
+        d = self.directional_search(player=player, board=board, bound_x=board.shape[1], bound_y=board.shape[0], depth=2)
+        winner = 0
 
         ####### Hard coded fixing of directional search so the environment will terminate
 
         if player.piece == board[2][0] and player.piece == board[1][1] and player.piece == board[0][2]:
             winner = 1
-        elif player.piece == board[2][0] and player.piece == board[1][1] and player.piece == board[0][1]:
+            d = 1
+        elif player.piece == board[2][0] and player.piece == board[1][1] and player.piece == board[0][1] and not d:
             winner = 0
-        elif player.piece == board[2][0] and player.piece == board[1][1] and player.piece == board[0][0]:
+        elif player.piece == board[2][0] and player.piece == board[1][1] and player.piece == board[0][0] and not d:
             winner = 0
-
-        elif player.piece == board[2][0] and player.piece == board[1][1] and player.piece == board[2][2]:
+        elif player.piece == board[2][0] and player.piece == board[1][1] and player.piece == board[2][2] and not d:
             winner = 0
-        elif player.piece == board[1][0] and player.piece == board[2][1] and player.piece == board[2][2]:
+        elif player.piece == board[1][0] and player.piece == board[2][1] and player.piece == board[2][2] and not d:
             winner = 0
-        elif player.piece == board[0][2] and player.piece == board[1][1] and player.piece == board[2][2]:
+        elif player.piece == board[0][2] and player.piece == board[1][1] and player.piece == board[2][2] and not d:
             winner = 0
-        elif player.piece == board[0][0] and player.piece == board[0][1] and player.piece == board[1][0]:
+        elif player.piece == board[0][0] and player.piece == board[0][1] and player.piece == board[1][0] and not d:
             winner = 0
-        elif player.piece == board[1][0] and player.piece == board[1][1] and player.piece == board[0][2]:
+        elif player.piece == board[1][0] and player.piece == board[1][1] and player.piece == board[0][2] and not d:
+            winner = 0
+        elif player.piece == board[0][0] and player.piece == board[1][1] and player.piece == board[1][2] and not d:
+            winner = 0
+        elif player.piece == board[0][0] and player.piece == board[0][1] and player.piece == board[1][1] and not d:
+            winner = 0
+        elif player.piece == board[1][0] and player.piece == board[2][0] and player.piece == board[2][1] and not d:
+            winner = 0
+        elif player.piece == board[0][2] and player.piece == board[1][1] and player.piece == board[1][2] and not d:
+            winner = 0
+        elif player.piece == board[1][0] and player.piece == board[0][1] and player.piece == board[0][2] and not d:
+            winner = 0
+        elif player.piece == board[0][1] and player.piece == board[0][2] and player.piece == board[1][2] and not d:
+            winner = 0
+        elif player.piece == board[2][0] and player.piece == board[2][1] and player.piece == board[1][1] and not d:
+            winner = 0
+        elif player.piece == board[0][2] and player.piece == board[1][0] and player.piece == board[2][1] and not d:
             winner = 0
 
         ## Terminate this function  if we determine the inputted is the winner as a result of their last action
@@ -406,7 +422,7 @@ class TicTacToe(Twoplayerenv):
                 if self.state[y][x] == '':
                     tie = 0
 
-        return tie or winner
+        return tie or ((winner and not d) or (not winner and d))
 
     ## if we arrive here then one of these
 
@@ -432,22 +448,44 @@ class TicTacToe(Twoplayerenv):
 
         board = board.reshape(3, 3)
 
+        d = self.directional_search(board=board, player=player, bound_x=board.shape[1], bound_y=board.shape[0],
+                                    depth=2)
         winner = 0
 
-        #### Fix to get to recognize diagonal from other direction
         if player.piece == board[2][0] and player.piece == board[1][1] and player.piece == board[0][2]:
             winner = 1
-
-        if player.piece == board[2][0] and player.piece == board[1][1] and player.piece == board[0][1]:
+        elif player.piece == board[2][0] and player.piece == board[1][1] and player.piece == board[0][1] and not d:
+            winner = 0
+        elif player.piece == board[2][0] and player.piece == board[1][1] and player.piece == board[0][0] and not d:
+            winner = 0
+        elif player.piece == board[2][0] and player.piece == board[1][1] and player.piece == board[2][2] and not d:
+            winner = 0
+        elif player.piece == board[1][0] and player.piece == board[2][1] and player.piece == board[2][2] and not d:
+            winner = 0
+        elif player.piece == board[0][2] and player.piece == board[1][1] and player.piece == board[2][2] and not d:
+            winner = 0
+        elif player.piece == board[0][0] and player.piece == board[0][1] and player.piece == board[1][0] and not d:
+            winner = 0
+        elif player.piece == board[1][0] and player.piece == board[1][1] and player.piece == board[0][2] and not d:
+            winner = 0
+        elif player.piece == board[0][0] and player.piece == board[1][1] and player.piece == board[1][2] and not d:
+            winner = 0
+        elif player.piece == board[0][0] and player.piece == board[0][1] and player.piece == board[1][1] and not d:
+            winner = 0
+        elif player.piece == board[1][0] and player.piece == board[2][0] and player.piece == board[2][1] and not d:
+            winner = 0
+        elif player.piece == board[0][2] and player.piece == board[1][1] and player.piece == board[1][2] and not d:
+            winner = 0
+        elif player.piece == board[1][0] and player.piece == board[0][1] and player.piece == board[0][2] and not d:
+            winner = 0
+        elif player.piece == board[0][1] and player.piece == board[0][2] and player.piece == board[1][2] and not d:
+            winner = 0
+        elif player.piece == board[2][0] and player.piece == board[2][1] and player.piece == board[1][1] and not d:
+            winner = 0
+        elif player.piece == board[0][2] and player.piece == board[1][0] and player.piece == board[2][1] and not d:
             winner = 0
 
-        if player.piece == board[2][0] and player.piece == board[1][1] and player.piece == board[0][0]:
-            winner = 0
-
-        if player.piece == board[2][0] and player.piece == board[1][1] and player.piece == board[2][2]:
-            winner = 0
-        return self.directional_search(board=board, player=player, bound_x=board.shape[1], bound_y=board.shape[0],
-                                       depth=2) or winner
+        return d or winner
 
 
 ############## Connect4 ENVIRONMENT !!!
