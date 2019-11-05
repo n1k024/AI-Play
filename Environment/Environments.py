@@ -378,35 +378,35 @@ class TicTacToe(Twoplayerenv):
         if player.piece == board[2][0] and player.piece == board[1][1] and player.piece == board[0][2]:
             winner = 1
             d = 1
-        elif player.piece == board[2][0] and player.piece == board[1][1] and player.piece == board[0][1] and not d:
+        elif player.piece == board[2][0] and player.piece == board[1][1] and player.piece == board[0][1] and d:
             winner = 0
-        elif player.piece == board[2][0] and player.piece == board[1][1] and player.piece == board[0][0] and not d:
+        elif player.piece == board[2][0] and player.piece == board[1][1] and player.piece == board[0][0] and d:
             winner = 0
-        elif player.piece == board[2][0] and player.piece == board[1][1] and player.piece == board[2][2] and not d:
+        elif player.piece == board[2][0] and player.piece == board[1][1] and player.piece == board[2][2] and d:
             winner = 0
-        elif player.piece == board[1][0] and player.piece == board[2][1] and player.piece == board[2][2] and not d:
+        elif player.piece == board[1][0] and player.piece == board[2][1] and player.piece == board[2][2] and d:
             winner = 0
-        elif player.piece == board[0][2] and player.piece == board[1][1] and player.piece == board[2][2] and not d:
+        elif player.piece == board[0][2] and player.piece == board[1][1] and player.piece == board[2][2] and d:
             winner = 0
-        elif player.piece == board[0][0] and player.piece == board[0][1] and player.piece == board[1][0] and not d:
+        elif player.piece == board[0][0] and player.piece == board[0][1] and player.piece == board[1][0] and d:
             winner = 0
-        elif player.piece == board[1][0] and player.piece == board[1][1] and player.piece == board[0][2] and not d:
+        elif player.piece == board[1][0] and player.piece == board[1][1] and player.piece == board[0][2] and d:
             winner = 0
-        elif player.piece == board[0][0] and player.piece == board[1][1] and player.piece == board[1][2] and not d:
+        elif player.piece == board[0][0] and player.piece == board[1][1] and player.piece == board[1][2] and d:
             winner = 0
-        elif player.piece == board[0][0] and player.piece == board[0][1] and player.piece == board[1][1] and not d:
+        elif player.piece == board[0][0] and player.piece == board[0][1] and player.piece == board[1][1] and d:
             winner = 0
-        elif player.piece == board[1][0] and player.piece == board[2][0] and player.piece == board[2][1] and not d:
+        elif player.piece == board[1][0] and player.piece == board[2][0] and player.piece == board[2][1] and d:
             winner = 0
-        elif player.piece == board[0][2] and player.piece == board[1][1] and player.piece == board[1][2] and not d:
+        elif player.piece == board[0][2] and player.piece == board[1][1] and player.piece == board[1][2] and d:
             winner = 0
-        elif player.piece == board[1][0] and player.piece == board[0][1] and player.piece == board[0][2] and not d:
+        elif player.piece == board[1][0] and player.piece == board[0][1] and player.piece == board[0][2] and d:
             winner = 0
-        elif player.piece == board[0][1] and player.piece == board[0][2] and player.piece == board[1][2] and not d:
+        elif player.piece == board[0][1] and player.piece == board[0][2] and player.piece == board[1][2] and d:
             winner = 0
-        elif player.piece == board[2][0] and player.piece == board[2][1] and player.piece == board[1][1] and not d:
+        elif player.piece == board[2][0] and player.piece == board[2][1] and player.piece == board[1][1] and d:
             winner = 0
-        elif player.piece == board[0][2] and player.piece == board[1][0] and player.piece == board[2][1] and not d:
+        elif player.piece == board[0][2] and player.piece == board[1][0] and player.piece == board[2][1] and d:
             winner = 0
 
         ## Terminate this function  if we determine the inputted is the winner as a result of their last action
