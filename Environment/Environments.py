@@ -231,6 +231,10 @@ class Twoplayerenv(ABC):
     def islegal_action(self, a):
         pass
 
+    @abstractmethod
+    def check_pieces(self, board, player):
+        pass
+
     def playepisode(self, player1, player2):
 
         ## Do NOT override this method !!!!!!
@@ -363,6 +367,50 @@ class TicTacToe(Twoplayerenv):
                 pos_x = -1
                 pos_y = pos_y + 1
 
+    def check_pieces(self, board, player):
+
+        winner = 0
+
+        if player.piece == board[2][0] and player.piece == board[1][1] and player.piece == board[0][2]:
+            winner = 1
+
+        elif player.piece == board[2][0] and player.piece == board[1][1] and player.piece == board[0][1]:
+            winner = 0
+        elif player.piece == board[2][0] and player.piece == board[1][1] and player.piece == board[0][0]:
+            winner = 0
+        elif player.piece == board[2][0] and player.piece == board[1][1] and player.piece == board[2][2]:
+            winner = 0
+        elif player.piece == board[1][0] and player.piece == board[2][1] and player.piece == board[2][2]:
+            winner = 0
+        elif player.piece == board[0][2] and player.piece == board[1][1] and player.piece == board[2][2]:
+            winner = 0
+        elif player.piece == board[0][0] and player.piece == board[0][1] and player.piece == board[1][0]:
+            winner = 0
+        elif player.piece == board[1][0] and player.piece == board[1][1] and player.piece == board[0][2]:
+            winner = 0
+        elif player.piece == board[0][0] and player.piece == board[1][1] and player.piece == board[1][2]:
+            winner = 0
+        elif player.piece == board[0][0] and player.piece == board[0][1] and player.piece == board[1][1]:
+            winner = 0
+        elif player.piece == board[1][0] and player.piece == board[2][0] and player.piece == board[2][1]:
+            winner = 0
+        elif player.piece == board[0][2] and player.piece == board[1][1] and player.piece == board[1][2]:
+            winner = 0
+        elif player.piece == board[1][0] and player.piece == board[0][1] and player.piece == board[0][2]:
+            winner = 0
+        elif player.piece == board[0][1] and player.piece == board[0][2] and player.piece == board[1][2]:
+            winner = 0
+        elif player.piece == board[2][0] and player.piece == board[2][1] and player.piece == board[1][1]:
+            winner = 0
+        elif player.piece == board[0][2] and player.piece == board[1][0] and player.piece == board[2][1]:
+            winner = 0
+        elif player.piece == board[0][1] and player.piece == board[1][0] and player.piece == board[1][1]:
+            winner = 0
+
+        return winner
+
+
+
     def isgameover(self, player):
 
         ## use directional search here
@@ -375,39 +423,8 @@ class TicTacToe(Twoplayerenv):
 
         ####### Hard coded fixing of directional search so the environment will terminate
 
-        if player.piece == board[2][0] and player.piece == board[1][1] and player.piece == board[0][2]:
-            winner = 1
+        winner = self.check_pieces(board=board, player=player)
 
-        elif player.piece == board[2][0] and player.piece == board[1][1] and player.piece == board[0][1] and d:
-            winner = 0
-        elif player.piece == board[2][0] and player.piece == board[1][1] and player.piece == board[0][0] and d:
-            winner = 0
-        elif player.piece == board[2][0] and player.piece == board[1][1] and player.piece == board[2][2] and d:
-            winner = 0
-        elif player.piece == board[1][0] and player.piece == board[2][1] and player.piece == board[2][2] and d:
-            winner = 0
-        elif player.piece == board[0][2] and player.piece == board[1][1] and player.piece == board[2][2] and d:
-            winner = 0
-        elif player.piece == board[0][0] and player.piece == board[0][1] and player.piece == board[1][0] and d:
-            winner = 0
-        elif player.piece == board[1][0] and player.piece == board[1][1] and player.piece == board[0][2] and d:
-            winner = 0
-        elif player.piece == board[0][0] and player.piece == board[1][1] and player.piece == board[1][2] and d:
-            winner = 0
-        elif player.piece == board[0][0] and player.piece == board[0][1] and player.piece == board[1][1] and d:
-            winner = 0
-        elif player.piece == board[1][0] and player.piece == board[2][0] and player.piece == board[2][1] and d:
-            winner = 0
-        elif player.piece == board[0][2] and player.piece == board[1][1] and player.piece == board[1][2] and d:
-            winner = 0
-        elif player.piece == board[1][0] and player.piece == board[0][1] and player.piece == board[0][2] and d:
-            winner = 0
-        elif player.piece == board[0][1] and player.piece == board[0][2] and player.piece == board[1][2] and d:
-            winner = 0
-        elif player.piece == board[2][0] and player.piece == board[2][1] and player.piece == board[1][1] and d:
-            winner = 0
-        elif player.piece == board[0][2] and player.piece == board[1][0] and player.piece == board[2][1] and d:
-            winner = 0
 
         ## Terminate this function  if we determine the inputted is the winner as a result of their last action
 
@@ -448,40 +465,8 @@ class TicTacToe(Twoplayerenv):
 
         d = self.directional_search(board=board, player=player, bound_x=board.shape[1], bound_y=board.shape[0],
                                     depth=2)
-        winner = 0
 
-        if player.piece == board[2][0] and player.piece == board[1][1] and player.piece == board[0][2]:
-            winner = 1
-        elif player.piece == board[2][0] and player.piece == board[1][1] and player.piece == board[0][1] and not d:
-            winner = 0
-        elif player.piece == board[2][0] and player.piece == board[1][1] and player.piece == board[0][0] and not d:
-            winner = 0
-        elif player.piece == board[2][0] and player.piece == board[1][1] and player.piece == board[2][2] and not d:
-            winner = 0
-        elif player.piece == board[1][0] and player.piece == board[2][1] and player.piece == board[2][2] and not d:
-            winner = 0
-        elif player.piece == board[0][2] and player.piece == board[1][1] and player.piece == board[2][2] and not d:
-            winner = 0
-        elif player.piece == board[0][0] and player.piece == board[0][1] and player.piece == board[1][0] and not d:
-            winner = 0
-        elif player.piece == board[1][0] and player.piece == board[1][1] and player.piece == board[0][2] and not d:
-            winner = 0
-        elif player.piece == board[0][0] and player.piece == board[1][1] and player.piece == board[1][2] and not d:
-            winner = 0
-        elif player.piece == board[0][0] and player.piece == board[0][1] and player.piece == board[1][1] and not d:
-            winner = 0
-        elif player.piece == board[1][0] and player.piece == board[2][0] and player.piece == board[2][1] and not d:
-            winner = 0
-        elif player.piece == board[0][2] and player.piece == board[1][1] and player.piece == board[1][2] and not d:
-            winner = 0
-        elif player.piece == board[1][0] and player.piece == board[0][1] and player.piece == board[0][2] and not d:
-            winner = 0
-        elif player.piece == board[0][1] and player.piece == board[0][2] and player.piece == board[1][2] and not d:
-            winner = 0
-        elif player.piece == board[2][0] and player.piece == board[2][1] and player.piece == board[1][1] and not d:
-            winner = 0
-        elif player.piece == board[0][2] and player.piece == board[1][0] and player.piece == board[2][1] and not d:
-            winner = 0
+        winner = self.check_pieces(board=board, player=player)
 
         return d or winner
 
