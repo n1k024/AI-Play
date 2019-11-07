@@ -152,11 +152,11 @@ class Twoplayerenv(ABC):
                 player1.set_next_state(player1.state)
                 if player1.name == 'SARSA':
                     player1.value_update(state=player1.state, new_state=player1.new_state, action=player1.action,
-                                         reward=1,
+                                         reward=10,
                                          done=1, action2=player1.action2)
                 else:
                     player1.value_update(state=player1.state, new_state=player1.new_state, action=player1.action,
-                                         reward=1,
+                                         reward=10,
                                          done=1)
 
                 if player2.name in self.bot_names:
@@ -164,7 +164,7 @@ class Twoplayerenv(ABC):
                     player2.set_next_state(self.state)
 
                     player2.value_update(state=player2.state, new_state=player2.new_state, action=player2.action,
-                                         reward=-1, done=1)
+                                         reward=-10, done=1)
 
         elif self.iswinner(player2):
 
@@ -174,11 +174,11 @@ class Twoplayerenv(ABC):
             print("Winner is", player2.name)
 
             if player2.name in self.bot_names:
-                player2.set_state(player2.state)
+                player2.set_state(player2.new_state)
                 player2.set_next_state(self.state)
 
                 player2.value_update(state=player2.state, new_state=player2.new_state, action=int(player2.action),
-                                     reward=1, done=1)
+                                     reward=10, done=1)
 
             if player1.name in self.bot_names:
                 player1.set_state(player1.new_state)
@@ -186,14 +186,12 @@ class Twoplayerenv(ABC):
 
                 if player1.name == 'SARSA':
                     player1.value_update(state=player1.state, new_state=player1.new_state, action=player1.action,
-                                         reward=-1,
+                                         reward=-10,
                                          done=1, action2=player1.action2)
                 else:
                     player1.value_update(state=player1.state, new_state=player1.new_state, action=player1.action,
-                                         reward=-1,
+                                         reward=-10,
                                          done=1)
-
-
 
         else:
             print("TIE !!!")
@@ -373,7 +371,6 @@ class TicTacToe(Twoplayerenv):
 
         if player.piece == board[2][0] and player.piece == board[1][1] and player.piece == board[0][2]:
             winner = 1
-
         elif player.piece == board[2][0] and player.piece == board[1][1] and player.piece == board[0][1]:
             winner = 0
         elif player.piece == board[2][0] and player.piece == board[1][1] and player.piece == board[0][0]:
@@ -406,10 +403,46 @@ class TicTacToe(Twoplayerenv):
             winner = 0
         elif player.piece == board[0][1] and player.piece == board[1][0] and player.piece == board[1][1]:
             winner = 0
+        elif player.piece == board[1][0] and player.piece == board[2][0] and player.piece == board[2][1]:
+            winner = 0
+        elif player.piece == board[1][1] and player.piece == board[2][0] and player.piece == board[2][0]:
+            winner = 0
+        elif player.piece == board[1][1] and player.piece == board[1][2] and player.piece == board[2][0]:
+            winner = 0
+        elif player.piece == board[0][1] and player.piece == board[1][1] and player.piece == board[1][2]:
+            winner = 0
+        elif player.piece == board[0][1] and player.piece == board[1][0] and player.piece == board[1][2]:
+            winner = 0
+        elif player.piece == board[0][1] and player.piece == board[1][0] and player.piece == board[2][0]:
+            winner = 0
+        elif player.piece == board[0][1] and player.piece == board[1][2] and player.piece == board[2][2]:
+            winner = 0
+        elif player.piece == board[1][0] and player.piece == board[1][2] and player.piece == board[2][1]:
+            winner = 0
+        elif player.piece == board[0][0] and player.piece == board[0][2] and player.piece == board[1][1]:
+            winner = 0
+        elif player.piece == board[0][2] and player.piece == board[1][1] and player.piece == board[2][1]:
+            winner = 0
+        elif player.piece == board[0][0] and player.piece == board[0][1] and player.piece == board[1][2]:
+            winner = 0
+        elif player.piece == board[0][0] and player.piece == board[1][0] and player.piece == board[2][0]:
+            winner = 1
+        elif player.piece == board[1][0] and player.piece == board[1][1] and player.piece == board[2][1]:
+            winner = 1
+        elif player.piece == board[0][0] and player.piece == board[1][1] and player.piece == board[2][0]:
+            winner = 0
+        elif player.piece == board[1][0] and player.piece == board[1][1] and player.piece == board[2][1]:
+            winner = 0
+        elif player.piece == board[0][1] and player.piece == board[0][2] and player.piece == board[1][0]:
+            winner = 0
+        elif player.piece == board[0][0] and player.piece == board[1][1] and player.piece == board[2][2]:
+            winner = 1
+        elif player.piece == board[2][0] and player.piece == board[2][1] and player.piece == board[2][2]:
+            winner = 1
+        elif player.piece == board[0][2] and player.piece == board[1][2] and player.piece == board[2][2]:
+            winner = 1
 
         return winner
-
-
 
     def isgameover(self, player):
 
@@ -425,6 +458,8 @@ class TicTacToe(Twoplayerenv):
 
         winner = self.check_pieces(board=board, player=player)
 
+        if not d is winner:
+            d = winner
 
         ## Terminate this function  if we determine the inputted is the winner as a result of their last action
 
@@ -439,7 +474,7 @@ class TicTacToe(Twoplayerenv):
                 if self.state[y][x] == '':
                     tie = 0
 
-        return tie or ((winner and not d) or (not winner and d))
+        return tie or d
 
     ## if we arrive here then one of these
 
