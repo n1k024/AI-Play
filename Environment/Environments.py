@@ -441,6 +441,24 @@ class TicTacToe(Twoplayerenv):
             winner = 1
         elif player.piece == board[0][2] and player.piece == board[1][2] and player.piece == board[2][2]:
             winner = 1
+        elif player.piece == board[0][2] and player.piece == board[1][1] and player.piece == board[2][1]:
+            winner = 0
+        elif player.piece == board[0][2] and player.piece == board[0][1] and player.piece == board[1][0]:
+            winner = 0
+        elif player.piece == board[0][0] and player.piece == board[1][0] and player.piece == board[2][1]:
+            winner = 0
+        elif player.piece == board[0][1] and player.piece == board[1][0] and player.piece == board[2][0]:
+            winner = 0
+        elif player.piece == board[0][1] and player.piece == board[1][2] and player.piece == board[2][2]:
+            winner = 0
+        elif player.piece == board[1][0] and player.piece == board[1][1] and player.piece == board[2][1]:
+            winner = 0
+        elif player.piece == board[0][2] and player.piece == board[1][2] and player.piece == board[2][1]:
+            winner = 0
+        elif player.piece == board[0][1] and player.piece == board[1][1] and player.piece == board[1][2]:
+            winner = 0
+        elif player.piece == board[0][1] and player.piece == board[1][1] and player.piece == board[2][0]:
+            winner = 0
 
         return winner
 
@@ -452,13 +470,12 @@ class TicTacToe(Twoplayerenv):
 
         ## determine if game terminates due to a winner
         d = self.directional_search(player=player, board=board, bound_x=board.shape[1], bound_y=board.shape[0], depth=2)
-        winner = 0
 
         ####### Hard coded fixing of directional search so the environment will terminate
 
         winner = self.check_pieces(board=board, player=player)
 
-        if not d is winner:
+        if d != winner:
             d = winner
 
         ## Terminate this function  if we determine the inputted is the winner as a result of their last action
@@ -504,7 +521,6 @@ class TicTacToe(Twoplayerenv):
         winner = self.check_pieces(board=board, player=player)
 
         return d or winner
-
 
 ############## Connect4 ENVIRONMENT !!!
 
