@@ -246,8 +246,9 @@ class QPlayer(Player, TabularRLAgent):
             entropy = self.entropy_calc(probability)
 
         action_val, _ = self.bestactionandvalue(new_state)
+        action_val = self.GAMMA * action_val
 
-        self.values[(state, action)] = prev_val + self.ALPHA * (entropy + reward + (self.GAMMA * action_val - prev_val))
+        self.values[(state, action)] = prev_val + self.ALPHA * (entropy + reward + (action_val - prev_val))
 
         if done:
             self.performance_report(self)
@@ -300,7 +301,7 @@ class DoubleQPLayer(TabularRLAgent, Player):
 
             self.values[(state, action)] = self.values[(state, action)] + self.ALPHA \
                                            * (reward + (
-                    self.GAMMA * self.v2[(state, a)] - self.values[(state, action)]))
+                    self.GAMMA * (self.v2[(state, a)]) - self.values[(state, action)]))
         elif Z < .5:
 
             a = self.best_action(self.v2, new_state)

@@ -214,11 +214,11 @@ class Twoplayerenv(ABC):
                 player1.set_next_state(self.state)
 
                 if player1.name == 'SARSA':
-                    player1.value_update(state=player1.state, new_state=player1.new_state, reward=0,
+                    player1.value_update(state=player1.state, new_state=player1.new_state, reward=-5,
                                          action=player1.action,
                                          done=1, action2=player1.action2)
                 else:
-                    player1.value_update(state=player1.state, new_state=player1.new_state, reward=0,
+                    player1.value_update(state=player1.state, new_state=player1.new_state, reward=-5,
                                          action=player1.action,
                                          done=1, action2=None)
 
