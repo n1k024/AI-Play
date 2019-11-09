@@ -163,8 +163,14 @@ class Twoplayerenv(ABC):
                     player2.set_state(player2.state)
                     player2.set_next_state(self.state)
 
-                    player2.value_update(state=player2.state, new_state=player2.new_state, action=player2.action,
-                                         reward=-10, done=1)
+                    if player2.name == 'SARSA':
+                        player2.value_update(state=player2.state, new_state=player2.new_state, action=player2.action,
+                                             reward=-10, done=1, action2=player2.action2)
+                    else:
+                        player2.value_update(state=player2.state, new_state=player2.new_state, action=player2.action,
+                                             reward=-10, done=1)
+
+
 
         elif self.iswinner(player2):
 
@@ -177,8 +183,12 @@ class Twoplayerenv(ABC):
                 player2.set_state(player2.new_state)
                 player2.set_next_state(self.state)
 
-                player2.value_update(state=player2.state, new_state=player2.new_state, action=int(player2.action),
-                                     reward=10, done=1)
+                if player2.name == 'SARSA':
+                    player2.value_update(state=player2.state, new_state=player2.new_state, action=player2.action,
+                                         reward=10, done=1, action2=player2.action2)
+                else:
+                    player2.value_update(state=player2.state, new_state=player2.new_state, action=player2.action,
+                                         reward=10, done=1)
 
             if player1.name in self.bot_names:
                 player1.set_state(player1.new_state)
@@ -431,8 +441,6 @@ class TicTacToe(Twoplayerenv):
             winner = 1
         elif player.piece == board[0][0] and player.piece == board[1][1] and player.piece == board[2][0]:
             winner = 0
-        elif player.piece == board[1][0] and player.piece == board[1][1] and player.piece == board[2][1]:
-            winner = 0
         elif player.piece == board[0][1] and player.piece == board[0][2] and player.piece == board[1][0]:
             winner = 0
         elif player.piece == board[0][0] and player.piece == board[1][1] and player.piece == board[2][2]:
@@ -458,6 +466,20 @@ class TicTacToe(Twoplayerenv):
         elif player.piece == board[0][1] and player.piece == board[1][1] and player.piece == board[1][2]:
             winner = 0
         elif player.piece == board[0][1] and player.piece == board[1][1] and player.piece == board[2][0]:
+            winner = 0
+        elif player.piece == board[0][1] and player.piece == board[1][1] and player.piece == board[2][1]:
+            winner = 1
+        elif player.piece == board[1][0] and player.piece == board[1][1] and player.piece == board[1][2]:
+            winner = 1
+        elif player.piece == board[0][0] and player.piece == board[1][1] and player.piece == board[2][2]:
+            winner = 1
+        elif player.piece == board[1][0] and player.piece == board[1][1] and player.piece == board[2][1]:
+            winner = 0
+        elif player.piece == board[1][1] and player.piece == board[2][1] and player.piece == board[2][2]:
+            winner = 0
+        elif player.piece == board[1][0] and player.piece == board[1][1] and player.piece == board[1][2]:
+            winner = 1
+        elif player.piece == board[1][0] and player.piece == board[2][1] and player.piece == board[2][2]:
             winner = 0
 
         return winner
@@ -521,6 +543,7 @@ class TicTacToe(Twoplayerenv):
         winner = self.check_pieces(board=board, player=player)
 
         return d or winner
+
 
 ############## Connect4 ENVIRONMENT !!!
 
