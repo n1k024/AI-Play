@@ -67,12 +67,19 @@ class TabularRLAgent(ABC):
 
         pass
 
-    def probability_calc(self, state):
+    def probability_calc(self, state, transition_count):
+
+        state_count = self.state_counts[state]
+
+        #### We learn a probability of the transition over time
+        p = state_count / transition_count
+        return p
+
+    def increament_count(self, state):
         self.state_counts[state] += 1
         self.transit_count += 1
-        #### We learn a probability of the transition over time
-        p = self.state_counts[state] / self.transit_count
-        return p
+
+        return self.state_counts[state], self.transit_count
 
         #### This function calcuates the entropy of being in a given state or how uncertain an agent is
 
@@ -242,22 +249,24 @@ class QPlayer(Player, TabularRLAgent):
         entropy = 0
 
         if self.entropy_augment:
-            probability = self.probability_calc(state=new_state)
+            self.increament_count(new_state)
+            probability = self.probability_calc(state=new_state, transition_count=self.transit_count)
             entropy = self.entropy_calc(probability)
 
         action_val, _ = self.bestactionandvalue(new_state)
         action_val = self.GAMMA * action_val
 
+        if self.auto_alpha:
+            probability = self.probability_calc(state=new_state, transition_count=self.transit_count)
+            self.ALPHA = probability
+
+        else:
+            self.ALPHA = self.adjust_learning_rate(alpha=self.ALPHA, decay=self.DECAY, done=done)
+
         self.values[(state, action)] = prev_val + self.ALPHA * (entropy + reward + (action_val - prev_val))
 
         if done:
             self.performance_report(self)
-
-        if self.auto_alpha:
-            self.ALPHA = self.probability_calc(state=new_state)
-
-        else:
-            self.ALPHA = self.adjust_learning_rate(alpha=self.ALPHA, decay=self.DECAY, done=done)
 
     def executeaction(self):
         ## compute best action in a given state
@@ -616,24 +625,25 @@ class SARSAgent(Player, TabularRLAgent):
                                 auto_alpha=auto_alpha, entropy_augment=entropy_augmentation)
 
     def value_update(self, state, action, new_state, reward, done=0, action2=None):
+
         if not action is None and not action2 is None:
 
-            entropy = 0.0
+            entropy = 0
             if self.entropy_augment:
-                p = self.probability_calc(self.state)
+                p = self.probability_calc(self.state, transition_count=self.transit_count)
                 entropy = self.entropy_calc(probability=p)
 
-                target = entropy + reward + self.GAMMA * self.values[new_state, action2]
-                predicted = self.values[state, action]
+            target = entropy + reward + self.GAMMA * self.values[new_state, action2]
+            predicted = self.values[state, action]
 
-                ### Perform policy update
-                self.values[state, action] = self.values[state, action] + self.ALPHA * (target - predicted)
+            ### Perform policy update
+            self.values[state, action] = self.values[state, action] + self.ALPHA * (target - predicted)
 
-                self.action = self.action2
-                self.action2 = None
+            self.action = self.action2
+            self.action2 = None
 
-                if done:
-                    self.performance_report(self)
+            if done:
+                self.performance_report(self)
 
     def executeaction(self):
         _, a = self.bestactionandvalue(self.state)
