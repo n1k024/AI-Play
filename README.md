@@ -4,10 +4,7 @@ Allowing Humans and AI play together, unlike other environments such as gym. AI-
 
 Requirements
 
-Python
-
-
-The structure is as follows
+Python 3.x
 
 root/
 
@@ -37,6 +34,11 @@ Players/
  the constructor of each environment takes two player objects and an integer for the number of episodes or games in which you wish to play
  
  Currently  only  environment available are TicTacToe and Connect4 we plan to include other board-like games.
- 
+
+
+ The Play script (Play.py) allows you (Human) to play with a QPlayer agent upon cloning this repository
+
  To use AI-Play simply create your player objects and then pass them into the contrete TwoPlayerEnv class. Please keep in mind you will need to create a Python script to call the environment and the two player objects you wish to use for that environment.
   
+Credits
+Works Cited on the research conducted to create this project can be found at WorksCited.txt
