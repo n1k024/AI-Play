@@ -39,6 +39,8 @@ Players/
  The Play script (Play.py) allows you (Human) to play with a QPlayer agent upon cloning this repository
 
  To use AI-Play simply create your player objects and then pass them into the contrete TwoPlayerEnv class. Please keep in mind you will need to create a Python script to call the environment and the two player objects you wish to use for that environment.
-  
+
+  You can change the types of players in each game by altering parameters for the environment
+
 Credits
 Works Cited on the research conducted to create this project can be found at WorksCited.txt

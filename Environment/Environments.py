@@ -27,6 +27,7 @@ class Twoplayerenv(ABC):
 
             self.display_state(self.state)
             ## Let's a play game !!!
+
             self.playepisode(self.player1, self.player2)
 
             self.display_state(self.state)

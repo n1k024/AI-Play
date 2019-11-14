@@ -2,7 +2,7 @@ Research for this project was conducted by studying the following texts
 
 Works Cited
 
-Hands on Deep Reinforcement Learning
+Deep Reinforcement Learning Hands-On
 Maxim Lapan
 2017
 
@@ -13,7 +13,3 @@ Richard Sutton and Andrew Barto
 Playing Atari with Deep Reinforcement Learning:
 Volodymyr Mnih   Koray Kavukcuoglu   David Silver   Alex Graves   Ioannis AntonoglouDaan Wierstra   Martin Riedmiller
 2013
-
-
-
-
