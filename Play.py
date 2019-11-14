@@ -14,6 +14,6 @@ dqp = players.DoubleQPLayer()
 
 ndqp = players.NStepDoubleQAgent()
 
-### Creating an enviornment object with Qplayer and N-stepDouble Q-Player they will play 20 episodes or games together of the
+### Creating an enviornment object with HumanPlayer and N-stepDouble Q-Player they will play 20 episodes or games together of the
 #### Tic Tac Toe Evironment
-Environments.TicTacToe(player1=qp, player2=ndqp, episodes=20)
+Environments.TicTacToe(player1=hp, player2=ndqp, episodes=20)
