@@ -30,7 +30,6 @@ Players/
  
  
  Environments
- 
  the constructor of each environment takes two player objects and an integer for the number of episodes or games in which you wish to play
  
  Currently  only  environment available are TicTacToe and Connect4 we plan to include other board-like games.
