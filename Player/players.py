@@ -45,7 +45,7 @@ class TabularRLAgent(ABC):
 
         if self.auto_alpha or self.entropy_augment:
             ### Used to learn probabilities of transitions
-            self.state_counts = collections.defaultdict(float)
+            self.state_counts = collections.defaultdict(int)
             self.transit_count = 0
 
             if entropy_augment:
@@ -64,7 +64,6 @@ class TabularRLAgent(ABC):
 
     @abstractmethod
     def value_update(self, state, action, new_state, reward, done=0, action2=None):
-
         pass
 
     def probability_calc(self, state, transition_count):
@@ -636,7 +635,8 @@ class SARSAgent(Player, TabularRLAgent):
 
             entropy = 0
             if self.entropy_augment:
-                p = self.probability_calc(self.state, transition_count=self.transit_count)
+                self.increament_count(state=new_state)
+                p = self.probability_calc(new_state, transition_count=self.transit_count)
                 entropy = self.entropy_calc(probability=p)
 
             target = entropy + reward + self.GAMMA * self.values[new_state, action2]

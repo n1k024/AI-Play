@@ -481,6 +481,14 @@ class TicTacToe(Twoplayerenv):
             winner = 1
         elif player.piece == board[1][0] and player.piece == board[2][1] and player.piece == board[2][2]:
             winner = 0
+        elif player.piece == board[0][0] and player.piece == board[0][1] and player.piece == board[0][2]:
+            winner = 1
+        elif player.piece == board[0][1] and player.piece == board[1][1] and player.piece == board[2][1]:
+            winner = 0
+        elif player.piece == board[0][2] and player.piece == board[1][1] and player.piece == board[2][2]:
+            winner = 0
+        elif player.piece == board[0][0] and player.piece == board[1][1] and player.piece == board[2][0]:
+            winner = 0
 
         return winner
 
@@ -497,9 +505,6 @@ class TicTacToe(Twoplayerenv):
 
         winner = self.check_pieces(board=board, player=player)
 
-        if d != winner:
-            d = winner
-
         ## Terminate this function  if we determine the inputted is the winner as a result of their last action
 
         ## Inspect the entire state space to see if all the spaces are filled
@@ -512,8 +517,12 @@ class TicTacToe(Twoplayerenv):
 
                 if self.state[y][x] == '':
                     tie = 0
+        # result = (d and not winner) or (not d and winner)
 
-        return tie or d
+        if d != winner:
+            d = not d
+
+        return tie or winner or d
 
     ## if we arrive here then one of these
 
