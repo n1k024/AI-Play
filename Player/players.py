@@ -538,6 +538,12 @@ class NStepDoubleQAgent(Player, TabularRLAgent):
                 probability = self.probability_calc(state=new_state)
                 entropy = self.entropy_calc(probability)
 
+            if self.auto_alpha:
+                probability = self.probability_calc(state=new_state, transition_count=self.transit_count)
+                self.ALPHA = probability
+            else:
+                self.ALPHA = self.adjust_learning_rate(alpha=self.ALPHA, decay=self.DECAY, done=done)
+
             Z = random.uniform(0, 1)
 
             ### Updating of Q-values occurs here notice we are using two lookup table here, we basically flip a coin to determine which table we will update
@@ -636,6 +642,12 @@ class SARSAgent(Player, TabularRLAgent):
             target = entropy + reward + self.GAMMA * self.values[new_state, action2]
             predicted = self.values[state, action]
 
+            if self.auto_alpha:
+                probability = self.probability_calc(state=new_state, transition_count=self.transit_count)
+                self.ALPHA = probability
+            else:
+                self.ALPHA = self.adjust_learning_rate(alpha=self.ALPHA, decay=self.DECAY, done=done)
+
             ### Perform policy update
             self.values[state, action] = self.values[state, action] + self.ALPHA * (target - predicted)
 
@@ -653,8 +665,9 @@ class SARSAgent(Player, TabularRLAgent):
 
         if self.action is None and self.action2 is None:
             self.action = a
-        elif not self.action is None:
+        elif not self.action is None and self.action2 is None:
             self.action2 = a
+            a = self.action
         elif not self.action is None and not self.action2 is None:
             self.action2 = None
             self.action = a
