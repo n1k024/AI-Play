@@ -1,0 +1,23 @@
+Parameter Guide
+
+Alpha: Learning rate or step size to take in the direction of the delta
+
+This value is generally somewhere between (0 and 1)
+
+Auto_Alpha: automatic learning rate , instead of setting your own learning rate we learn the probability of being in the transition state and apply that
+probability to our update, we don't need to worry about how fast or slow alpha decays for our agent will learn the probabilities of p(s')
+
+Epsilon: how how often the agent will behave randomly (default .05) by default agent behaves randomly 5% of the time to explore the space
+
+Entropy_Augment: Once turned on the agent's reward function is augmented with the Entropy of the transition state,
+
+This is another exploration technique where we penalize for being too certain about actions.
+
+We use the Entropy definition of H(x) = -p(x)log(p(x))
+
+we define our target as
+
+target = H(s') + r + gamma(max(Q(s',a'))
+
+Where r is the immediate received and H(s') is the entropy of the transition state,
+
