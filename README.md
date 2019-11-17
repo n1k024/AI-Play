@@ -26,7 +26,11 @@ Players/
  
  NstepDoubleAgent: RL agent that uses both N-step returns and Double Learning to update the Q-values 
  
- Inherits : NstepAgent and DoubleAgent
+ Inherits : RLTabularAgent and Player
+
+ SARSAgent: implmentation of SARSA algorithm
+ SARSA is an on-policy TD method that uses Q-values for to compute the policy
+ Inherits: RLTabularAgent and Player
  
  
  Environments
@@ -41,5 +45,12 @@ Players/
 
   You can change the types of players in each game by altering parameters for the environment
 
+
+
 Credits
 Works Cited on the research conducted to create this project can be found at WorksCited.txt
+
+
+Parameter Setting
+
+If you wish to change the parameters of the agents consult the parameter guide (Parameter_Guide.txt) to understand the various settings and how they work
