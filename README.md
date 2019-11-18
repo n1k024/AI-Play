@@ -2,9 +2,17 @@
 
 Allowing Humans and AI play together, unlike other environments such as gym. AI-Play allows the huamn or AI to play witn one another. AI-Play is an educational ,research framework for experimenting with AI agents. 
 
-Requirements
 
-Python 3.x
+To run please open your terminal and access the directory where you decided to place this repository on your disk and type the following command
+
+python3 Play.py
+
+if this doesn't work try
+
+python Play.py
+
+
+Note: you do need to have Python installed to run the script Play.py
 
 root/
 
