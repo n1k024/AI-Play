@@ -291,12 +291,14 @@ class QPlayer(Player, TabularRLAgent):
 ### This RL agent uses a technique known as Double Learning ,it can be applied to almost any TD method such as SARSA and Q-Learning
 ## This Agent will use double learning to avoid maximization bias obtained from the max operation in Q-Learning
 class DoubleQPLayer(TabularRLAgent, Player):
-    def __init__(self, alpha=.1, name="DbQPlayer", gamma=.9, epsilon=.05, min_alpha=.0001):
+    def __init__(self, alpha=.1, name="DbQPlayer", gamma=.9, epsilon=.05, min_alpha=.0001, auto_alpha=False,
+                 entropy_aument=False):
         self.v2 = collections.defaultdict(float)
 
         Player.__init__(self, name=name)
 
-        TabularRLAgent.__init__(self, alpha=alpha, gamma=gamma, epsilon=epsilon, min_alpha=min_alpha)
+        TabularRLAgent.__init__(self, alpha=alpha, gamma=gamma, epsilon=epsilon, min_alpha=min_alpha,
+                                auto_alpha=auto_alpha, entropy_augment=entropy_aument)
 
     def value_update(self, state, action, new_state, reward=0, done=0, action2=None):
 
@@ -304,24 +306,33 @@ class DoubleQPLayer(TabularRLAgent, Player):
 
         ### Updating of Q-values occurs here notice we are using two lookup table here, we basically flip a coin to determine which table we will update
 
+        if self.entropy_augment:
+            self.increament_count(new_state)
+            probability = self.probability_calc(state=new_state, transition_count=self.transit_count)
+            entropy = self.entropy_calc(probability)
+
+        if self.auto_alpha:
+            probability = self.probability_calc(state=new_state, transition_count=self.transit_count)
+            self.ALPHA = probability
+
+        else:
+            self.ALPHA = self.adjust_learning_rate(alpha=self.ALPHA, decay=self.DECAY, done=done)
+
         if Z > .5:
             a = self.best_action(self.values, new_state)
 
             self.values[(state, action)] = self.values[(state, action)] + self.ALPHA \
-                                           * (reward + (
+                                           * (entropy + reward + (
                     self.GAMMA * (self.v2[(state, a)]) - self.values[(state, action)]))
         elif Z < .5:
 
             a = self.best_action(self.v2, new_state)
 
             self.v2[(state, action)] = self.v2[(state, action)] + self.ALPHA \
-                                       * (reward + (
+                                       * (entropy + reward + (
                     self.GAMMA * self.values[(state, a)] - self.v2[(state, action)]))
         else:
             self.value_update(state, action, new_state, reward)
-
-            self.ALPHA = self.adjust_learning_rate(alpha=self.ALPHA, decay=self.DECAY, done=done,
-                                                   min_alpha=self.min_alpha)
 
         if done:
             self.performance_report(self)
