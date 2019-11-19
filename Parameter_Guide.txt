@@ -7,6 +7,10 @@ This value is generally somewhere between (0 and 1)
 Auto_Alpha: automatic learning rate , instead of setting your own learning rate we learn the probability of being in the transition state and apply that
 probability to our update, we don't need to worry about how fast or slow alpha decays for our agent will learn the probabilities of p(s')
 
+Decay: This is a value generally between (0 and 1) where it decribes to what extent do we want to slow down learning after each episode
+
+Note: values > 1 will yield increasing values for ALPHA
+
 Epsilon: how how often the agent will behave randomly (default .05) by default agent behaves randomly 5% of the time to explore the space
 
 Entropy_Augment: Once turned on the agent's reward function is augmented with the Entropy of the transition state,
@@ -20,4 +24,8 @@ we define our target as
 target = H(s') + r + gamma(max(Q(s',a'))
 
 Where r is the immediate received and H(s') is the entropy of the transition state,
+
+Note: if Entropy Augmentation is turned on Epsilon will be set to zero because they are two explorations techniques
+
+
 
