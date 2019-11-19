@@ -7,9 +7,12 @@ This value is generally somewhere between (0 and 1)
 Auto_Alpha: automatic learning rate , instead of setting your own learning rate we learn the probability of being in the transition state and apply that
 probability to our update, we don't need to worry about how fast or slow alpha decays for our agent will learn the probabilities of p(s')
 
-Decay: This is a value generally between (0 and 1) where it decribes to what extent do we want to slow down learning after each episode
+Decay: This is a value generally between (0 and 1) where it describes to what extent do we want to slow down learning after each episode
 
 Note: values > 1 will yield increasing values for ALPHA
+
+Alpha_Min: This parameter describes how low ALPHA can be after before applying DECAY, to prevent learning getting too slow
+
 
 Epsilon: how how often the agent will behave randomly (default .05) by default agent behaves randomly 5% of the time to explore the space
 
