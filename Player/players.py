@@ -29,7 +29,7 @@ class Player(ABC):
 
 class TabularRLAgent(ABC):
     def __init__(self, alpha=.1, gamma=.9, epsilon=.05, decay=.99, min_alpha=.0001, auto_alpha=False,
-                 entropy_augment=False):
+                 entropy_augment=False, pr=False):
         self.values = collections.defaultdict(float)
         self.state = ""
         self.new_state = ""
@@ -42,6 +42,7 @@ class TabularRLAgent(ABC):
         self.auto_alpha = auto_alpha
         self.entropy_augment = entropy_augment
         self.action = None
+        self.pr = pr
 
         if self.auto_alpha or self.entropy_augment:
             ### Used to learn probabilities of transitions
@@ -264,7 +265,7 @@ class QPlayer(Player, TabularRLAgent):
 
         self.values[(state, action)] = prev_val + self.ALPHA * (entropy + reward + (action_val - prev_val))
 
-        if done:
+        if done and self.pr:
             self.performance_report(self)
 
     def executeaction(self):
@@ -335,9 +336,8 @@ class DoubleQPLayer(TabularRLAgent, Player):
         else:
             self.value_update(state, action, new_state, reward)
 
-        if done:
-            s = 'hello'
-            # self.performance_report(self)
+        if done and self.pr:
+            self.performance_report(self)
 
     def best_action(self, values, state):
         best_value = -1
@@ -450,7 +450,7 @@ class NStepQAgent(Player, TabularRLAgent):
             self.ALPHA = self.adjust_learning_rate(alpha=self.ALPHA, decay=self.DECAY, done=done,
                                                    min_alpha=self.min_alpha)
 
-            if done:
+            if done and self.pr:
                 self.performance_report(self)
 
     def best_action(self, state):
@@ -544,10 +544,10 @@ class NStepDoubleQAgent(Player, TabularRLAgent):
             s = self.states.pop()
             a = self.actions.pop()
 
-            entropy = 0
+            entropy = 0.0
 
             if self.entropy_augment:
-                probability = self.probability_calc(state=new_state)
+                probability = self.probability_calc(state=new_state, transition_count=self.transit_count)
                 entropy = self.entropy_calc(probability)
 
             if self.auto_alpha:
@@ -575,7 +575,7 @@ class NStepDoubleQAgent(Player, TabularRLAgent):
 
             self.ALPHA = self.adjust_learning_rate(alpha=self.ALPHA, decay=self.DECAY, done=done,
                                                    min_alpha=self.min_alpha)
-            if done:
+            if done and self.pr:
                 self.performance_report(self)
 
     def executeaction(self):
@@ -667,9 +667,8 @@ class SARSAgent(Player, TabularRLAgent):
             self.action = self.action2
             self.action2 = None
 
-            if done:
-                s = 'hello'
-                # self.performance_report(self)
+            if done and self.pr:
+                self.performance_report(self)
 
 
     def executeaction(self):
