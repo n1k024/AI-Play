@@ -303,6 +303,7 @@ class DoubleQPLayer(TabularRLAgent, Player):
     def value_update(self, state, action, new_state, reward=0, done=0, action2=None):
 
         Z = random.uniform(0, 1)
+        entropy = 0.0
 
         ### Updating of Q-values occurs here notice we are using two lookup table here, we basically flip a coin to determine which table we will update
 
@@ -335,7 +336,8 @@ class DoubleQPLayer(TabularRLAgent, Player):
             self.value_update(state, action, new_state, reward)
 
         if done:
-            self.performance_report(self)
+            s = 'hello'
+            # self.performance_report(self)
 
     def best_action(self, values, state):
         best_value = -1
@@ -666,7 +668,9 @@ class SARSAgent(Player, TabularRLAgent):
             self.action2 = None
 
             if done:
-                self.performance_report(self)
+                s = 'hello'
+                # self.performance_report(self)
+
 
     def executeaction(self):
         _, a = self.bestactionandvalue(self.state)
