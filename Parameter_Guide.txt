@@ -30,5 +30,6 @@ Where r is the immediate received and H(s') is the entropy of the transition sta
 
 Note: if Entropy Augmentation is turned on Epsilon will be set to zero because they are two explorations techniques
 
-
+PR: This parameter enables performance reporting for the agent
+When the parameter is true the agent will compute the its average Q-value and store the result to file after each episode or game.
 
