@@ -36,7 +36,7 @@ Players/
  
  Inherits : RLTabularAgent and Player
 
- SARSAgent: implmentation of SARSA algorithm
+ SARSAgent: implementation of SARSA algorithm
  SARSA is an on-policy TD method that uses Q-values for to compute the policy
  Inherits: RLTabularAgent and Player
  
